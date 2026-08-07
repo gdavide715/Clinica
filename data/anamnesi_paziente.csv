@@ -1,0 +1,4 @@
+id,codicePaziente,tipologia,descrizione
+1,U003,FattoreRischio,Ex-fumatrice
+2,U004,Comorbidita,Ipertensione
+3,U005,FattoreRischio,Obesita

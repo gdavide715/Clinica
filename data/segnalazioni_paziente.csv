@@ -1,0 +1,3 @@
+id,codicePaziente,descrizione,dataInizio,dataFine,evento
+1,U003,Spossatezza nel pomeriggio,2026-08-01,2026-08-03,Sintomo
+2,U004,Ipertensione in terapia con ACE-inibitore,2026-01-01,2026-12-31,PatologiaConcomitante

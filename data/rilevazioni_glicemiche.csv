@@ -1,0 +1,6 @@
+id,codicePaziente,livelloGlicemia,data,ora,momentoPasto
+1,U003,110,2026-08-05,07:30,pre_pasto
+2,U003,165,2026-08-05,14:00,post_pasto
+3,U004,205,2026-08-06,13:30,post_pasto
+4,U005,95,2026-08-06,08:00,pre_pasto
+5,U004,210,2026-08-07,13:00,post_pasto
