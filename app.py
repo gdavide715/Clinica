@@ -1,9 +1,5 @@
 """
 Entry point dell'applicazione Dash.
-
-Per ora espone solo la pagina di login per validare la catena
-View -> Controller -> Model -> CSV. Le view paziente_view.py e
-diabetologo_view.py sono i prossimi passi (vedi README).
 """
 
 from dash import Dash, html
@@ -16,8 +12,6 @@ app.title = "Telemedicina Diabete"
 app.layout = html.Div(
     [
         login_view.layout,
-        # In futuro: routing tra paziente_view e diabetologo_view
-        # in base a session-store, usando dcc.Location + callback.
     ]
 )
 
