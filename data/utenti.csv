@@ -1,7 +1,7 @@
 codiceUtente,username,password,nome,cognome,dataNascita,codiceFiscale,ruolo
-U001,mrossi,u001pwd,Mario,Rossi,1975-03-12,RSSMRA75C12F205X,diabetologo
-U002,gbianchi,u002pwd,Giulia,Bianchi,1982-07-30,BNCGLI82L70F205Y,diabetologo
-U003,averdi,u003pwd,Anna,Verdi,1958-11-02,VRDNNA58S42F205Z,paziente
-U004,lferrari,u004pwd,Luca,Ferrari,1965-05-19,FRRLCU65E19F205W,paziente
-U005,sgalli,u005pwd,Sara,Galli,1971-09-25,GLLSRA71P65F205K,paziente
-U006,pmarino,u006pwd,Paolo,Marino,1960-01-08,MRNPLA60A08F205J,paziente
+U001,mrossi,mrossipwd,Mario,Rossi,1975-03-12,RSSMRA75C12F205X,diabetologo
+U002,gbianchi,gbianchipwd,Giulia,Bianchi,1982-07-30,BNCGLI82L70F205Y,diabetologo
+U003,averdi,averdipwd,Anna,Verdi,1958-11-02,VRDNNA58S42F205Z,paziente
+U004,lferrari,lferraripwd,Luca,Ferrari,1965-05-19,FRRLCU65E19F205W,paziente
+U005,sgalli,sgallipwd,Sara,Galli,1971-09-25,GLLSRA71P65F205K,paziente
+U006,pmarino,pmarinopwd,Paolo,Marino,1960-01-08,MRNPLA60A08F205J,paziente

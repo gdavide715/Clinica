@@ -7,11 +7,11 @@ from dash import Dash, html
 from views import login_view
 
 app = Dash(__name__, suppress_callback_exceptions=True)
-app.title = "Telemedicina Diabete"
+app.title = "Centro Diabetologico"
 
 app.layout = html.Div(
     [
-        login_view.layout,
+        login_view.login_layout(),
     ]
 )
 
