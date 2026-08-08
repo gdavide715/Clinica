@@ -2,18 +2,107 @@
 Entry point dell'applicazione Dash.
 """
 
-from dash import Dash, html
+from datetime import date
+from dash import Dash, html, dcc, Input, Output, State, no_update
+from dash.exceptions import PreventUpdate
 
 from views import login_view
+from views.paziente_view import paziente_layout
+from views.diabetologo_view import diabetologo_layout
+
+from controllers.alert_controller import AlertController
 
 app = Dash(__name__, suppress_callback_exceptions=True)
 app.title = "Centro Diabetologico"
 
-app.layout = html.Div(
-    [
-        login_view.login_layout(),
-    ]
+alert_controller = AlertController()
+
+app.layout = html.Div([
+    
+    html.Div(
+        id="view-login",
+        children=[login_view.login_layout()],
+        style={'display': 'block'}
+    ),
+    
+    html.Div(
+        id="view-paziente",
+        children=[],
+        style={'display': 'none'}
+    ),
+    
+    html.Div(
+        id="view-medico",
+        children=[],
+        style={'display': 'none'}
+    ),
+    
+    dcc.Interval(
+        id="background-interval",
+        interval=60000,
+        n_intervals=0
+    )
+])
+
+# ROUTING DELLE PAGINE
+@app.callback(
+    Output("view-login", "style"),
+    Output("view-paziente", "children"),
+    Output("view-paziente", "style"),
+    Output("view-medico", "children"),
+    Output("view-medico", "style"),
+    Input("session-store", "data")
 )
+def update_route(session_data):
+    """Gestisce la navigazione mostrando la view corretta in base al ruolo."""
+    if not session_data:
+        return {'display': 'block'}, [], {'display': 'none'}, [], {'display': 'none'}
+        
+    ruolo = session_data.get("ruolo")
+    
+    if ruolo == "paziente":
+        return {'display': 'none'}, paziente_layout(session_data), {'display': 'block'}, [], {'display': 'none'}
+        
+    elif ruolo == "diabetologo":
+        return {'display': 'none'}, [], {'display': 'none'}, diabetologo_layout(session_data), {'display': 'block'}
+        
+    return {'display': 'block'}, [], {'display': 'none'}, [], {'display': 'none'}
+
+
+# GESTIONE LOGOUT
+@app.callback(
+    Output("session-store", "data", allow_duplicate=True),
+    Input("btn-logout", "n_clicks"),
+    prevent_initial_call=True
+)
+def esegui_logout(n_clicks):
+    """Svuota la sessione. Il routing rileverà il cambiamento e tornerà al login."""
+    if n_clicks and n_clicks > 0:
+        return None
+    raise PreventUpdate
+
+
+# VERIFICA ASSUNZIONI
+@app.callback(
+    Output("background-interval", "n_intervals"),
+    Input("background-interval", "n_intervals"),
+    prevent_initial_call=True
+)
+def run_background_tasks(n):
+    """Esegue ciclicamente il Sequence Diagram 'AlertDimenticanze.txt'."""
+    df_pazienti = alert_controller.dm_pazienti.read_all()
+    oggi = date.today()
+    
+    for _, row in df_pazienti.iterrows():
+        codice_paz = row["codiceUtente"]
+        esito_alert = alert_controller.verifica_assunzioni(codice_paz, oggi)
+        
+        if esito_alert["notifica_diabetologo"]:
+            print(f"[{oggi} - ALERT MEDICO] Attenzione: il paziente {codice_paz} non assume regolarmente i farmaci. (Inviato al medico: {esito_alert['codice_medico']})")
+        elif esito_alert["notifica_paziente"]:
+            print(f"[{oggi} - ALERT PAZIENTE] Paziente {codice_paz}, ricordati di assumere i farmaci prescritti!")
+            
+    return no_update
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
