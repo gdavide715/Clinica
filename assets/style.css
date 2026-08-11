@@ -71,3 +71,248 @@ body {
     margin-top: 10px;
     text-align: center;
 }
+
+/* ==========================================================================
+   Utilita' generiche
+   ========================================================================== */
+.hidden {
+    display: none;
+}
+
+/* ==========================================================================
+   Dashboard — layout comune (paziente e diabetologo)
+   ========================================================================== */
+.dashboard-card {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.dashboard-card--wide {
+    max-width: 1000px;
+}
+
+.dashboard-header {
+    display: inline-block;
+    color: #333;
+}
+
+.dashboard-subtitle {
+    color: #666;
+}
+
+.btn-logout {
+    float: right;
+    margin-top: 20px;
+    padding: 8px 16px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.tab-content {
+    padding: 20px;
+    border: 1px solid #d6d6d6;
+    border-top: none;
+    background-color: #fafafa;
+}
+
+.tab-content h4 {
+    margin-top: 0;
+}
+
+/* ==========================================================================
+   Form
+   ========================================================================== */
+.form-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-label--inline {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.form-input--half {
+    width: 48%;
+    margin-right: 4%;
+}
+
+.form-input--half:last-of-type {
+    margin-right: 0;
+}
+
+.form-textarea {
+    width: 100%;
+    height: 80px;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.form-textarea--tall {
+    height: 120px;
+}
+
+.form-dropdown {
+    margin-bottom: 15px;
+}
+
+.form-datepicker {
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   Bottoni
+   ========================================================================== */
+.btn {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+}
+
+.btn-verde { background-color: #4CAF50; }
+.btn-blu { background-color: #2196F3; }
+.btn-arancio { background-color: #FF9800; }
+
+.btn-gmail {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #EA4335;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   Messaggi di esito (successo / errore / alert)
+   ========================================================================== */
+.msg-box {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid;
+    font-weight: bold;
+}
+
+.msg-box--empty {
+    /* stato iniziale: nessun messaggio, nessuno stile visibile */
+    margin-top: 0;
+    padding: 0;
+    border: none;
+}
+
+.msg-successo {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+}
+
+.msg-errore {
+    color: #d32f2f;
+    background-color: #ffebee;
+}
+
+.msg-alert {
+    color: #e65100;
+    background-color: #fff3e0;
+}
+
+/* ==========================================================================
+   Contatta il Medico
+   ========================================================================== */
+.contatto-medico-box {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.contatto-medico-box h4 {
+    margin-top: 0;
+    color: #333;
+}
+
+.contatto-medico-box p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.contatto-medico-errore {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   Diabetologo — selezione paziente e liste
+   ========================================================================== */
+.med-selezione-paziente {
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #f4f6f8;
+    border-radius: 5px;
+}
+
+.med-selezione-paziente label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.med-paziente-dropdown {
+    width: 300px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.card-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.card-list-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.card-list-item strong {
+    display: block;
+    color: #1976d2;
+}
+
+.card-list-item .card-list-meta {
+    font-size: 12px;
+    color: #888;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.card-list-item p {
+    margin: 0;
+}
+
+.card-list-empty {
+    color: #666;
+    font-style: italic;
+}

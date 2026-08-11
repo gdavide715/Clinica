@@ -7,6 +7,8 @@ from datetime import date, timedelta
 from config import CSV_PATHS, GIORNI_CONSECUTIVI_ALERT_MEDICO
 from models.data_manager import DataManager
 
+#bisogna gestire l'invio di alert al medico e al paziente in modo che mandi un messaggio e finché lo stato non cambia "resta"
+#quel messaggio lì
 
 class AlertController:
 

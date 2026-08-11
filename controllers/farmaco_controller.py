@@ -32,7 +32,7 @@ class FarmacoController:
             "codicePaziente": codice_paziente,
             "idTerapia": id_terapia,
             "data": data,
-            "ora": ora,
+            "ora": ora.strftime("%H:%M"),
             "quantita": quantita,
         })
         return True, "Assunzione registrata con successo."

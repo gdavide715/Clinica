@@ -49,7 +49,7 @@ class GlicemiaController:
             "codicePaziente": rilevazione.codicePaziente,
             "livelloGlicemia": rilevazione.livelloGlicemia,
             "data": rilevazione.data,
-            "ora": rilevazione.ora,
+            "ora": rilevazione.ora.strftime("%H:%M"),
             "momentoPasto": rilevazione.momentoPasto.value,
         })
 
@@ -69,3 +69,8 @@ class GlicemiaController:
 
         esito = "fuori soglia" if fuori_soglia else "nella norma"
         return esito, alert_inviato, codice_medico
+
+    def get_storico_paziente(self, codice_paziente: str):
+        """Restituisce lo storico delle rilevazioni glicemiche di un paziente."""
+        df = self.dm_rilevazioni.read_all()
+        return df[df["codicePaziente"] == codice_paziente].copy()
