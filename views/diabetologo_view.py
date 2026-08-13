@@ -14,7 +14,10 @@ from controllers.segnalazione_controller import SegnalazioneController
 from controllers.glicemia_controller import GlicemiaController
 from controllers.paziente_controller import PazienteController
 from models.my_enum.pasto import Pasto
+from controllers.anamnesi_controller import AnamnesiController
+from models.my_enum.tipo_condizione_clinica import TipoCondizioneClinica
 
+anamnesi_controller = AnamnesiController()
 segnalazione_controller = SegnalazioneController()
 terapia_controller = TerapiaController()
 glicemia_controller = GlicemiaController()
@@ -94,6 +97,25 @@ def diabetologo_layout(session_data):
                     html.Div(className="tab-content", children=[
                         html.H4("Storico Sintomi e Messaggi"),
                         html.Div(id="med-segnalazioni-list", className="card-list-container"),
+                    ])
+                ]),
+
+                # Anamnesi Paziente
+                dcc.Tab(label='Anamnesi Clinica', children=[
+                    html.Div(className="tab-content", children=[
+                        html.H4("Gestione Fascicolo Clinico"),
+
+                        html.Label("Patologie Pregresse", className="form-label"),
+                        dcc.Textarea(id="med-anam-patologie", className="form-textarea", placeholder="Inserisci una patologia per riga o separate da virgola..."),
+
+                        html.Label("Comorbidità", className="form-label"),
+                        dcc.Textarea(id="med-anam-comorbidita", className="form-textarea", placeholder="Inserisci una comorbidità per riga o separate da virgola..."),
+
+                        html.Label("Fattori di Rischio", className="form-label"),
+                        dcc.Textarea(id="med-anam-rischio", className="form-textarea", placeholder="Inserisci un fattore di rischio per riga o separate da virgola..."),
+
+                        html.Button("Salva Anamnesi", id="btn-salva-anamnesi", n_clicks=0, className="btn btn-arancio"),
+                        html.Div(id="msg-anamnesi", className="msg-box--empty"),
                     ])
                 ]),
             ])
@@ -234,3 +256,47 @@ def carica_messaggi_paziente(codice_paziente):
         lista_html.append(card)
 
     return lista_html
+
+@callback(
+    Output("med-anam-patologie", "value"),
+    Output("med-anam-comorbidita", "value"),
+    Output("med-anam-rischio", "value"),
+    Input("med-paziente-select", "value"),
+    prevent_initial_call=True
+)
+def carica_anamnesi_paziente(codice_paziente):
+    """Carica i dati nei campi di testo quando il medico seleziona un paziente."""
+    if not codice_paziente:
+        return "", "", ""
+
+    dati = anamnesi_controller.ottieni_anamnesi(codice_paziente)
+    return (
+        dati.get(TipoCondizioneClinica.PREGRESSA_PATOLOGIA.value, ""),
+        dati.get(TipoCondizioneClinica.COMORBIDITA.value, ""),
+        dati.get(TipoCondizioneClinica.FATTORE_RISCHIO.value, "")
+    )
+
+
+@callback(
+    Output("msg-anamnesi", "children"),
+    Output("msg-anamnesi", "className"),
+    Input("btn-salva-anamnesi", "n_clicks"),
+    State("med-paziente-select", "value"),
+    State("med-anam-patologie", "value"),
+    State("med-anam-comorbidita", "value"),
+    State("med-anam-rischio", "value"),
+    prevent_initial_call=True
+)
+def salva_anamnesi(n_clicks, codice_paziente, patologie, comorbidita, rischio):
+    """Gestisce il salvataggio o l'aggiornamento dell'anamnesi."""
+    if not codice_paziente:
+        return "Attenzione: seleziona un paziente prima di salvare.", "msg-box msg-errore"
+
+    esito = anamnesi_controller.aggiorna_anamnesi(
+        codice_paziente,
+        patologie or "",
+        comorbidita or "",
+        rischio or ""
+    )
+
+    return esito, "msg-box msg-successo"
