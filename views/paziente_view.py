@@ -1,7 +1,8 @@
 """View — dashboard del paziente.
 
 Lo stile grafico e' definito in assets/style.css. Questo file si occupa
-solo di struttura (layout) e comportamento (callback).
+solo di struttura (layout) e comportamento (callback). L'accesso ai dati
+passa sempre da un controller, mai da DataManager/CSV direttamente.
 """
 
 from datetime import datetime, date
@@ -9,50 +10,51 @@ import urllib.parse
 from dash import html, dcc, Input, Output, State, callback
 
 from controllers.glicemia_controller import GlicemiaController
+from controllers.assunzione_farmaco_controller import AssunzioneFarmacoController
 from controllers.farmaco_controller import FarmacoController
 from controllers.segnalazione_controller import SegnalazioneController
 from controllers.contatto_controller import ContattoController
 from controllers.terapia_controller import TerapiaController
 from models.my_enum.pasto import Pasto
 from models.my_enum.tipo_segnalazione_paziente import TipoSegnalazionePaziente
-from config import CSV_PATHS
-from models.data_manager import DataManager
 
 segnalazione_controller = SegnalazioneController()
 glicemia_controller = GlicemiaController()
+assunzione_controller = AssunzioneFarmacoController()
 farmaco_controller = FarmacoController()
 contatto_controller = ContattoController()
 terapia_controller = TerapiaController()
-dm_farmaci = DataManager(CSV_PATHS["farmaci"])
+
+
+def _terapia_attiva_per_id(codice_paziente, id_terapia):
+    """Trova, tra le terapie attive del paziente, quella con l'id dato."""
+    terapie = terapia_controller.get_terapie_attive_paziente(codice_paziente)
+    return next((t for t in terapie if t.id == id_terapia), None)
 
 
 def _opzioni_terapie_paziente(codice_paziente):
     """
     Costruisce le opzioni del dropdown 'Terapia prescritta' a partire dalle
-    terapie del paziente loggato. Ogni opzione mostra il nome del farmaco
-    e la posologia, cosi' il paziente sceglie la terapia senza dover
-    conoscere o digitare codici tecnici (farmaco/terapia sono impliciti
-    nella scelta, non piu' campi liberi soggetti a errore).
+    terapie ATTIVE del paziente loggato (usa TerapiaDiabetica.is_attiva(),
+    cosi' una terapia scaduta non compare piu' come opzione). Ogni opzione
+    mostra il nome del farmaco e la posologia, cosi' il paziente sceglie la
+    terapia senza dover conoscere o digitare codici tecnici.
     """
     if not codice_paziente:
         return []
 
-    df_terapie = terapia_controller.get_terapie_paziente(codice_paziente)
-    if df_terapie.empty:
-        return []
-
-    df_farmaci = dm_farmaci.read_all()
+    terapie_attive = terapia_controller.get_terapie_attive_paziente(codice_paziente)
 
     opzioni = []
-    for _, terapia in df_terapie.iterrows():
-        farmaco_match = df_farmaci[df_farmaci["codiceFarmaco"] == terapia["codiceFarmaco"]]
-        nome_farmaco = farmaco_match.iloc[0]["nome"] if not farmaco_match.empty else terapia["codiceFarmaco"]
+    for terapia in terapie_attive:
+        farmaco = farmaco_controller.get_farmaco(terapia.codiceFarmaco)
+        nome_farmaco = farmaco.nome if farmaco else terapia.codiceFarmaco
 
         label = (
-            f"{nome_farmaco} — {terapia['assunzioneGiornaliera']}x/giorno "
-            f"da {terapia['quantita']} ({terapia['indicazioni']})"
+            f"{nome_farmaco} — {terapia.assunzioneGiornaliera}x/giorno "
+            f"da {terapia.quantita} ({terapia.indicazioni})"
         )
-        opzioni.append({"label": label, "value": int(terapia["id"])})
+        opzioni.append({"label": label, "value": terapia.id})
 
     return opzioni
 
@@ -243,11 +245,8 @@ def precompila_quantita(id_terapia, session_data):
         return None
 
     codice_paz = session_data.get("codiceUtente")
-    df_terapie = terapia_controller.get_terapie_paziente(codice_paz)
-    terapia = df_terapie[df_terapie["id"] == id_terapia]
-    if terapia.empty:
-        return None
-    return float(terapia.iloc[0]["quantita"])
+    terapia = _terapia_attiva_per_id(codice_paz, id_terapia)
+    return terapia.quantita if terapia else None
 
 
 @callback(
@@ -273,17 +272,16 @@ def handle_salva_farmaco(n_clicks, id_terapia, data_str, ora_str, qty, session_d
 
     codice_paz = session_data.get("codiceUtente")
 
-    # Il farmaco non e' piu' un campo libero: si ricava dalla terapia scelta,
-    # cosi' non e' possibile abbinare per errore un farmaco che non corrisponde
-    # alla terapia selezionata (l'unico input davvero libero e' la quantita').
-    df_terapie = terapia_controller.get_terapie_paziente(codice_paz)
-    terapia = df_terapie[df_terapie["id"] == id_terapia]
-    if terapia.empty:
-        return "Terapia non trovata.", "msg-box msg-errore"
-    codice_farmaco = terapia.iloc[0]["codiceFarmaco"]
+    # Il farmaco non e' piu' un campo libero: si ricava dalla terapia scelta
+    # (oggetto TerapiaDiabetica), cosi' non e' possibile abbinare per errore
+    # un farmaco che non corrisponde alla terapia selezionata (l'unico input
+    # davvero libero e' la quantita').
+    terapia = _terapia_attiva_per_id(codice_paz, id_terapia)
+    if terapia is None:
+        return "Terapia non trovata o non piu' attiva.", "msg-box msg-errore"
 
-    successo, msg_controller = farmaco_controller.registra_assunzione(
-        codice_paz, id_terapia, codice_farmaco, data_obj, ora_obj, float(qty)
+    successo, msg_controller = assunzione_controller.registra_assunzione(
+        codice_paz, id_terapia, terapia.codiceFarmaco, data_obj, ora_obj, float(qty)
     )
 
     classe = "msg-box msg-successo" if successo else "msg-box msg-errore"

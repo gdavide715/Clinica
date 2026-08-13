@@ -53,5 +53,10 @@ def handle_login(n_clicks, username, password):
     if not successo:
         return dato, "", None  # dato contiene il messaggio di errore
 
-    session_data = {"codiceUtente": dato.codiceUtente, "ruolo": ruolo, "nome": dato.nome}
+    session_data = {
+        "codiceUtente": dato.codiceUtente,
+        "ruolo": ruolo,
+        "nome": dato.nome,
+        "email": getattr(dato, "email", None),  # presente solo per Diabetologo
+    }
     return "", f"Benvenuto/a {dato.full_name()} ({ruolo})", session_data

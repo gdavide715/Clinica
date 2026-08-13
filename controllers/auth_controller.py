@@ -18,6 +18,7 @@ class AuthController:
     def __init__(self):
         self.dm_utenti = DataManager(CSV_PATHS["utenti"])
         self.dm_pazienti = DataManager(CSV_PATHS["pazienti"])
+        self.dm_diabetologi = DataManager(CSV_PATHS["diabetologi"])
 
     def login(self, username: str, password: str):
         
@@ -42,5 +43,9 @@ class AuthController:
             return True, "paziente", paziente
 
         # ruolo == diabetologo
-        diabetologo = Diabetologo.from_row(row)
+        df_diabetologi = self.dm_diabetologi.read_all()
+        match_medico = df_diabetologi[df_diabetologi["codiceUtente"] == row["codiceUtente"]]
+        row_diabetologo = match_medico.iloc[0].to_dict() if not match_medico.empty else {"email": ""}
+
+        diabetologo = Diabetologo.from_row(row, row_diabetologo)
         return True, "diabetologo", diabetologo

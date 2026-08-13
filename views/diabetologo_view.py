@@ -8,7 +8,6 @@ passa sempre da un controller, mai da DataManager direttamente.
 from datetime import datetime, date
 from dash import html, dcc, Input, Output, State, callback
 import plotly.graph_objects as go
-import pandas as pd
 
 from controllers.terapia_controller import TerapiaController
 from controllers.segnalazione_controller import SegnalazioneController
@@ -116,7 +115,7 @@ def carica_lista_pazienti(dummy, session_data):
     pazienti_assegnati = paziente_controller.get_pazienti_assegnati(codice_medico)
 
     return [
-        {'label': f"{p['nome']} {p['cognome']} ({p['codiceUtente']})", 'value': p['codiceUtente']}
+        {'label': f"{p.nome} {p.cognome} ({p.codiceUtente})", 'value': p.codiceUtente}
         for p in pazienti_assegnati
     ]
 
@@ -135,20 +134,19 @@ def aggiorna_dashboard_paziente(codice_paziente):
 
     fig = go.Figure()
 
-    if not storico_paziente.empty:
-        storico_paziente['datetime'] = pd.to_datetime(storico_paziente['data'].astype(str) + ' ' + storico_paziente['ora'].astype(str))
-        storico_paziente = storico_paziente.sort_values(by='datetime')
+    if storico_paziente:
+        storico_ordinato = sorted(storico_paziente, key=lambda r: r.as_datetime())
 
-        pre_pasto = storico_paziente[storico_paziente['momentoPasto'] == Pasto.PRE_PASTO.value]
-        post_pasto = storico_paziente[storico_paziente['momentoPasto'] == Pasto.POST_PASTO.value]
+        pre_pasto = [r for r in storico_ordinato if r.momentoPasto == Pasto.PRE_PASTO]
+        post_pasto = [r for r in storico_ordinato if r.momentoPasto == Pasto.POST_PASTO]
 
         fig.add_trace(go.Scatter(
-            x=pre_pasto['datetime'], y=pre_pasto['livelloGlicemia'],
+            x=[r.as_datetime() for r in pre_pasto], y=[r.livelloGlicemia for r in pre_pasto],
             mode='lines+markers', name='Pre-Pasto', line=dict(color='blue')
         ))
 
         fig.add_trace(go.Scatter(
-            x=post_pasto['datetime'], y=post_pasto['livelloGlicemia'],
+            x=[r.as_datetime() for r in post_pasto], y=[r.livelloGlicemia for r in post_pasto],
             mode='lines+markers', name='Post-Pasto', line=dict(color='red')
         ))
 
@@ -229,9 +227,9 @@ def carica_messaggi_paziente(codice_paziente):
     lista_html = []
     for msg in messaggi:
         card = html.Div(className="card-list-item", children=[
-            html.Strong(f"Oggetto: {msg.get('evento', 'Segnalazione')}"),
-            html.Span(f"Periodo: dal {msg.get('dataInizio')} al {msg.get('dataFine')}", className="card-list-meta"),
-            html.P(msg.get('descrizione', '')),
+            html.Strong(f"Oggetto: {msg.evento.value}"),
+            html.Span(f"Periodo: dal {msg.dataInizio} al {msg.dataFine}", className="card-list-meta"),
+            html.P(msg.descrizione),
         ])
         lista_html.append(card)
 

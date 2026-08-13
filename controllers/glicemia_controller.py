@@ -44,14 +44,7 @@ class GlicemiaController:
         
 
         # Sistema -> Rilevazione Glicemica: salvaRilevazione(...)
-        self.dm_rilevazioni.append_row({
-            "id": rilevazione.id,
-            "codicePaziente": rilevazione.codicePaziente,
-            "livelloGlicemia": rilevazione.livelloGlicemia,
-            "data": rilevazione.data,
-            "ora": rilevazione.ora.strftime("%H:%M"),
-            "momentoPasto": rilevazione.momentoPasto.value,
-        })
+        self.dm_rilevazioni.append_row(rilevazione.to_row())
 
         fuori_soglia = rilevazione.fuori_soglia(
             GLICEMIA_PRE_PASTO_MIN, GLICEMIA_PRE_PASTO_MAX, GLICEMIA_POST_PASTO_MAX
@@ -70,7 +63,8 @@ class GlicemiaController:
         esito = "fuori soglia" if fuori_soglia else "nella norma"
         return esito, alert_inviato, codice_medico
 
-    def get_storico_paziente(self, codice_paziente: str):
+    def get_storico_paziente(self, codice_paziente: str) -> list[RilevazioneGlicemica]:
         """Restituisce lo storico delle rilevazioni glicemiche di un paziente."""
         df = self.dm_rilevazioni.read_all()
-        return df[df["codicePaziente"] == codice_paziente].copy()
+        df_paziente = df[df["codicePaziente"] == codice_paziente]
+        return [RilevazioneGlicemica.from_row(row) for row in df_paziente.to_dict("records")]
