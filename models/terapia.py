@@ -13,6 +13,7 @@ class TerapiaDiabetica:
     indicazioni: str
     dataInizio: date
     dataFine: date
+    ultimaModifica: date
 
     def is_attiva(self, oggi: date) -> bool:
         return self.dataInizio <= oggi <= self.dataFine
@@ -30,6 +31,7 @@ class TerapiaDiabetica:
             indicazioni=row["indicazioni"],
             dataInizio=date.fromisoformat(str(row["dataInizio"])),
             dataFine=date.fromisoformat(str(row["dataFine"])),
+            ultimaModifica=date.fromisoformat(str(row["ultimaModifica"]))
         )
 
     def to_row(self) -> dict:
@@ -44,4 +46,5 @@ class TerapiaDiabetica:
             "indicazioni": self.indicazioni,
             "dataInizio": self.dataInizio,
             "dataFine": self.dataFine,
+            "ultimaModifica": self.ultimaModifica
         }

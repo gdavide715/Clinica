@@ -20,7 +20,7 @@ class TerapiaController:
     def crea_terapia(self, codice_paziente: str, codice_diabetologo: str,
                       codice_farmaco: str, assunzione_giornaliera: int,
                       quantita: float, indicazioni: str,
-                      data_inizio: date, data_fine: date) -> str:
+                      data_inizio: date, data_fine: date, ultima_modifica: date) -> str:
         """Corrisponde a Terapia --> Diabetologo: esitoAggiunta(messaggio)"""
         terapia = TerapiaDiabetica(
             id=self.dm_terapie.get_next_id("id"),
@@ -32,6 +32,7 @@ class TerapiaController:
             indicazioni=indicazioni,
             dataInizio=data_inizio,
             dataFine=data_fine,
+            ultimaModifica=ultima_modifica
         )
         self.dm_terapie.append_row(terapia.to_row())
         return f"Terapia creata con successo (id={terapia.id})."

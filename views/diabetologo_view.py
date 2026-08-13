@@ -317,3 +317,70 @@ def salva_anamnesi(n_clicks, codice_paziente, patologie, comorbidita, rischio):
     )
 
     return esito, "msg-box msg-successo"
+
+
+@callback(
+    Output("msg-terapia", "children"),
+    Output("msg-terapia", "className"),
+    Input("btn-salva-terapia", "n_clicks"),
+    State("med-paziente-select", "value"),
+    State("med-ter-farmaco", "value"),
+    State("med-ter-assunzioni", "value"),
+    State("med-ter-qty", "value"),
+    State("med-ter-ind", "value"),
+    State("med-ter-inizio", "date"),
+    State("med-ter-fine", "date"),
+    State("session-store", "data"),
+    prevent_initial_call=True
+)
+def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
+                  assunzioni, quantita, indicazioni,
+                  data_inizio, data_fine, session_data):
+
+    # Sessione non valida, callback non parte
+    if session_data is None or session_data.get("codiceUtente") is None:
+        return "Errore: sessione non valida.", "msg-box msg-errore"
+
+    # Validazione campi
+    if not all([codice_paziente, codice_farmaco, assunzioni, quantita, indicazioni, data_inizio, data_fine]):
+        return "Compila tutti i campi della terapia.", "msg-box msg-errore"
+
+    codice_medico = session_data.get("codiceUtente")
+    oggi = date.today()
+
+    # Recupera terapie attive del paziente
+    terapie_attive = terapia_controller.get_terapie_attive_paziente(codice_paziente)
+
+    # Cerca terapia con stesso farmaco
+    terapia_esistente = next(
+        (t for t in terapie_attive if t.codiceFarmaco == codice_farmaco),
+        None
+    )
+
+    # Se esiste, aggiorna
+    if terapia_esistente:
+        esito = terapia_controller.aggiorna_terapia(
+            terapia_esistente.id,
+            assunzioneGiornaliera=int(assunzioni),
+            quantita=float(quantita),
+            indicazioni=indicazioni,
+            dataInizio=date.fromisoformat(data_inizio),
+            dataFine=date.fromisoformat(data_fine),
+            ultimaModifica=oggi
+        )
+        return esito, "msg-box msg-successo"
+
+    # Altrimenti, crea nuova terapia
+    esito = terapia_controller.crea_terapia(
+        codice_paziente=codice_paziente,
+        codice_diabetologo=codice_medico,
+        codice_farmaco=codice_farmaco,
+        assunzione_giornaliera=int(assunzioni),
+        quantita=float(quantita),
+        indicazioni=indicazioni,
+        data_inizio=date.fromisoformat(data_inizio),
+        data_fine=date.fromisoformat(data_fine),
+        ultima_modifica=oggi
+    )
+
+    return esito, "msg-box msg-successo"

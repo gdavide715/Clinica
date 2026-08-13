@@ -1,4 +1,6 @@
-id,codicePaziente,codiceDiabetologo,codiceFarmaco,assunzioneGiornaliera,quantita,indicazioni,dataInizio,dataFine
-1,U003,U001,F001,2,500,dopo i pasti,2026-01-10,2026-12-31
-2,U004,U001,F002,1,10,lontano dai pasti,2026-02-01,2026-12-31
-3,U005,U002,F003,1,100,dopo colazione,2026-03-15,2026-12-31
+id,codicePaziente,codiceDiabetologo,codiceFarmaco,assunzioneGiornaliera,quantita,indicazioni,dataInizio,dataFine,ultimaModifica
+1,U003,U001,F001,2,500.0,dopo i pasti,2026-01-10,2026-12-31,2026-01-10
+2,U004,U001,F002,1,10.0,lontano dai pasti,2026-02-01,2026-12-31,2026-02-01
+3,U005,U002,F003,1,100.0,dopo colazione,2026-03-15,2026-12-31,2026-03-15
+4,U003,U001,F002,6767,67.0,ti devi spaventareeeee,2026-08-10,2026-08-27,2026-08-13
+5,U003,U001,F003,150000,12.0,ho modificato questa terapia figliolo,2026-08-05,2026-08-26,2026-08-13
