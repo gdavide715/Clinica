@@ -126,6 +126,22 @@ body {
     margin-top: 0;
 }
 
+.med-range-picker {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding: 6px;
+    width: 260px;   
+    border-radius: 6px;
+    background-color: #f8f8f8;
+}
+
+.med-range-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+}
+
+
 /* ==========================================================================
    Form
    ========================================================================== */

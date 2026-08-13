@@ -1,10 +1,3 @@
-"""View — dashboard del diabetologo.
-
-Lo stile grafico e' definito in assets/style.css. Questo file si occupa
-solo di struttura (layout) e comportamento (callback); l'accesso ai dati
-passa sempre da un controller, mai da DataManager direttamente.
-"""
-
 from datetime import datetime, date
 from dash import html, dcc, Input, Output, State, callback
 import plotly.graph_objects as go
@@ -25,7 +18,6 @@ paziente_controller = PazienteController()
 
 
 def diabetologo_layout(session_data):
-    """Genera il layout per l'utente loggato come diabetologo."""
     nome = session_data.get("nome", "Dottore")
 
     return html.Div(className="dashboard-card dashboard-card--wide", children=[
@@ -37,9 +29,8 @@ def diabetologo_layout(session_data):
         html.P("Seleziona un paziente per monitorare la sua glicemia o prescrivere nuove terapie.", className="dashboard-subtitle"),
         html.Hr(),
 
-        # Selezione Paziente
         html.Div(className="med-selezione-paziente", children=[
-            html.Label("Paziente Selezionato:"),
+            html.Label("Paziente selezionato:"),
             dcc.Dropdown(
                 id="med-paziente-select",
                 placeholder="Caricamento pazienti in corso...",
@@ -50,71 +41,82 @@ def diabetologo_layout(session_data):
 
         html.Div(id="med-dashboard-content", className="hidden", children=[
             dcc.Tabs([
-                # Grafico Glicemia
-                dcc.Tab(label='Andamento Glicemico', children=[
+
+                dcc.Tab(label='Andamento glicemico', children=[
                     html.Div(className="tab-content", children=[
-                        html.H4("Storico Rilevazioni"),
+                        html.H4("Storico rilevazioni"),
+
+                        html.Div(
+                            dcc.DatePickerRange(
+                                id="med-glicemia-range",
+                                start_date_placeholder_text="Inizio",
+                                end_date_placeholder_text="Fine",
+                                display_format="YYYY-MM-DD",
+                                className="med-range-picker"
+                            ),
+                            className="med-range-container"
+                        ),
+
                         dcc.Graph(id="med-glicemia-graph"),
                     ])
                 ]),
 
-                # Prescrizione Terapia
-                dcc.Tab(label='Prescrivi Terapia', children=[
+                dcc.Tab(label='Prescrivi terapia', children=[
                     html.Div(className="tab-content", children=[
-                        html.H4("Nuova Terapia Farmacologica"),
+                        html.H4("Nuova terapia farmacologica"),
 
-                        html.Label("Codice Farmaco", className="form-label"),
-                        dcc.Input(id="med-ter-farmaco", type="text", placeholder="es. MET850", className="form-input"),
+                        html.Label("Codice farmaco", className="form-label"),
+                        dcc.Input(id="med-ter-farmaco", type="text", className="form-input"),
 
-                        html.Label("Assunzioni Giornaliere", className="form-label"),
-                        dcc.Input(id="med-ter-assunzioni", type="number", placeholder="es. 2", className="form-input"),
+                        html.Label("Assunzioni giornaliere", className="form-label"),
+                        dcc.Input(id="med-ter-assunzioni", type="number", className="form-input"),
 
                         html.Label("Quantità per assunzione (mg/ml)", className="form-label"),
-                        dcc.Input(id="med-ter-qty", type="number", placeholder="es. 1.5", className="form-input"),
+                        dcc.Input(id="med-ter-qty", type="number", className="form-input"),
 
                         html.Label("Indicazioni", className="form-label"),
-                        dcc.Input(id="med-ter-ind", type="text", placeholder="es. Assumere durante i pasti principali", className="form-input"),
+                        dcc.Input(id="med-ter-ind", type="text", className="form-input"),
 
-                        html.Label("Data Inizio", className="form-label"),
+                        html.Label("Data inizio", className="form-label"),
                         dcc.DatePickerSingle(
-                            id="med-ter-inizio", placeholder="Seleziona la data",
-                            display_format="YYYY-MM-DD", className="form-datepicker",
+                            id="med-ter-inizio",
+                            display_format="YYYY-MM-DD",
+                            className="form-datepicker",
                         ),
 
-                        html.Label("Data Fine", className="form-label"),
+                        html.Label("Data fine", className="form-label"),
                         dcc.DatePickerSingle(
-                            id="med-ter-fine", placeholder="Seleziona la data",
-                            display_format="YYYY-MM-DD", className="form-datepicker",
+                            id="med-ter-fine",
+                            display_format="YYYY-MM-DD",
+                            className="form-datepicker",
                         ),
 
-                        html.Button("Salva Prescrizione", id="btn-salva-terapia", n_clicks=0, className="btn btn-verde"),
+                        html.Button("Salva prescrizione", id="btn-salva-terapia", n_clicks=0, className="btn btn-verde"),
                         html.Div(id="msg-terapia", className="msg-box--empty"),
                     ])
                 ]),
 
-                # Segnalazioni Paziente
-                dcc.Tab(label='Segnalazioni Ricevute', children=[
+                dcc.Tab(label='Segnalazioni ricevute', children=[
                     html.Div(className="tab-content", children=[
-                        html.H4("Storico Sintomi e Messaggi"),
+                        html.H4("Storico sintomi e messaggi"),
                         html.Div(id="med-segnalazioni-list", className="card-list-container"),
                     ])
                 ]),
 
-                # Anamnesi Paziente
-                dcc.Tab(label='Anamnesi Clinica', children=[
+                dcc.Tab(label='Anamnesi clinica', children=[
                     html.Div(className="tab-content", children=[
-                        html.H4("Gestione Fascicolo Clinico"),
+                        html.H4("Gestione fascicolo clinico"),
 
-                        html.Label("Patologie Pregresse", className="form-label"),
-                        dcc.Textarea(id="med-anam-patologie", className="form-textarea", placeholder="Inserisci una patologia per riga o separate da virgola..."),
+                        html.Label("Patologie pregresse", className="form-label"),
+                        dcc.Textarea(id="med-anam-patologie", className="form-textarea"),
 
                         html.Label("Comorbidità", className="form-label"),
-                        dcc.Textarea(id="med-anam-comorbidita", className="form-textarea", placeholder="Inserisci una comorbidità per riga o separate da virgola..."),
+                        dcc.Textarea(id="med-anam-comorbidita", className="form-textarea"),
 
-                        html.Label("Fattori di Rischio", className="form-label"),
-                        dcc.Textarea(id="med-anam-rischio", className="form-textarea", placeholder="Inserisci un fattore di rischio per riga o separate da virgola..."),
+                        html.Label("Fattori di rischio", className="form-label"),
+                        dcc.Textarea(id="med-anam-rischio", className="form-textarea"),
 
-                        html.Button("Salva Anamnesi", id="btn-salva-anamnesi", n_clicks=0, className="btn btn-arancio"),
+                        html.Button("Salva anamnesi", id="btn-salva-anamnesi", n_clicks=0, className="btn btn-arancio"),
                         html.Div(id="msg-anamnesi", className="msg-box--empty"),
                     ])
                 ]),
@@ -129,7 +131,6 @@ def diabetologo_layout(session_data):
     State("session-store", "data"),
 )
 def carica_lista_pazienti(dummy, session_data):
-    """Carica nel dropdown solo i pazienti assegnati al medico loggato."""
     if not session_data or session_data.get("ruolo") != "diabetologo":
         return []
 
@@ -142,42 +143,103 @@ def carica_lista_pazienti(dummy, session_data):
     ]
 
 
+def filtra_intervallo(storico, Inizio, Fine):
+    if not Inizio or not Fine:
+        return storico
+
+    start_dt = datetime.strptime(Inizio, "%Y-%m-%d")
+    end_dt = datetime.strptime(Fine, "%Y-%m-%d")
+
+    return [r for r in storico if start_dt <= r.as_datetime() <= end_dt]
+
+
 @callback(
     Output("med-dashboard-content", "className"),
     Output("med-glicemia-graph", "figure"),
-    Input("med-paziente-select", "value")
+    Input("med-paziente-select", "value"),
+    Input("med-glicemia-range", "start_date"),
+    Input("med-glicemia-range", "end_date")
 )
-def aggiorna_dashboard_paziente(codice_paziente):
-    """Mostra la dashboard e genera il grafico quando viene scelto un paziente."""
+def aggiorna_dashboard_paziente(codice_paziente, Inizio, Fine):
     if not codice_paziente:
         return "hidden", go.Figure()
 
     storico_paziente = glicemia_controller.get_storico_paziente(codice_paziente)
-
     fig = go.Figure()
 
     if storico_paziente:
         storico_ordinato = sorted(storico_paziente, key=lambda r: r.as_datetime())
+        storico_filtrato = filtra_intervallo(storico_ordinato, Inizio, Fine)
 
-        pre_pasto = [r for r in storico_ordinato if r.momentoPasto == Pasto.PRE_PASTO]
-        post_pasto = [r for r in storico_ordinato if r.momentoPasto == Pasto.POST_PASTO]
+        pre_pasto = [r for r in storico_filtrato if r.momentoPasto == Pasto.PRE_PASTO]
+        post_pasto = [r for r in storico_filtrato if r.momentoPasto == Pasto.POST_PASTO]
+
+        # Range glicemico consigliato (esempio clinico)
+        range_min = 70
+        range_max = 180
+
+        fig.add_shape(
+            type="rect",
+            xref="paper", yref="y",
+            x0=0, x1=1,
+            y0=range_min, y1=range_max,
+            fillcolor="rgba(0, 200, 0, 0.10)",
+            line=dict(width=0),
+            layer="below"
+        )
+
+        # Punti fuori range evidenziati
+        def colore_punto(valore):
+            return "red" if valore > range_max or valore < range_min else "blue"
 
         fig.add_trace(go.Scatter(
-            x=[r.as_datetime() for r in pre_pasto], y=[r.livelloGlicemia for r in pre_pasto],
-            mode='lines+markers', name='Pre-Pasto', line=dict(color='blue')
+            x=[r.as_datetime() for r in pre_pasto],
+            y=[r.livelloGlicemia for r in pre_pasto],
+            mode='markers+lines',
+            name='Pre-pasto',
+            marker=dict(color=[colore_punto(r.livelloGlicemia) for r in pre_pasto], size=8),
+            line=dict(color='blue')
         ))
 
         fig.add_trace(go.Scatter(
-            x=[r.as_datetime() for r in post_pasto], y=[r.livelloGlicemia for r in post_pasto],
-            mode='lines+markers', name='Post-Pasto', line=dict(color='red')
+            x=[r.as_datetime() for r in post_pasto],
+            y=[r.livelloGlicemia for r in post_pasto],
+            mode='markers+lines',
+            name='Post-pasto',
+            marker=dict(color='red', size=8),
+            line=dict(color='red')
         ))
+
+        # Linea di trend (media mobile)
+        if len(storico_filtrato) >= 3:
+            valori = [r.livelloGlicemia for r in storico_filtrato]
+            date_x = [r.as_datetime() for r in storico_filtrato]
+            media_mobile = []
+            for i in range(len(valori)):
+                start = max(0, i - 2)
+                media_mobile.append(sum(valori[start:i+1]) / (i - start + 1))
+
+            fig.add_trace(go.Scatter(
+                x=date_x,
+                y=media_mobile,
+                mode='lines',
+                name='Trend (media mobile)',
+                line=dict(color='orange', width=3, dash='dash')
+            ))
 
         fig.update_layout(
-            title=f"Andamento Glicemico (Paziente: {codice_paziente})",
-            xaxis_title="Data e Ora",
+            title=f"Andamento glicemico (Paziente: {codice_paziente})",
+            xaxis_title="Data e ora",
             yaxis_title="Livello (mg/dL)",
             margin=dict(l=20, r=20, t=40, b=20),
-            hovermode="x unified"
+            hovermode="x unified",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
     else:
         fig.update_layout(
@@ -186,50 +248,6 @@ def aggiorna_dashboard_paziente(codice_paziente):
         )
 
     return "", fig
-
-
-@callback(
-    Output("msg-terapia", "children"),
-    Output("msg-terapia", "className"),
-    Input("btn-salva-terapia", "n_clicks"),
-    State("med-paziente-select", "value"),
-    State("med-ter-farmaco", "value"),
-    State("med-ter-assunzioni", "value"),
-    State("med-ter-qty", "value"),
-    State("med-ter-ind", "value"),
-    State("med-ter-inizio", "date"),
-    State("med-ter-fine", "date"),
-    State("session-store", "data"),
-    prevent_initial_call=True
-)
-def salva_prescrizione(n_clicks, paziente_cod, farmaco, assunzioni, qty, indicazioni, inizio_str, fine_str, session_data):
-    """Gestisce il form di inserimento di una nuova terapia."""
-    if not paziente_cod:
-        return "Errore critico: nessun paziente selezionato.", "msg-box msg-errore"
-
-    if not all([farmaco, assunzioni, qty, indicazioni, inizio_str, fine_str]):
-        return "Compila tutti i campi prima di salvare la prescrizione.", "msg-box msg-errore"
-
-    try:
-        data_inizio_obj = datetime.strptime(inizio_str, "%Y-%m-%d").date()
-        data_fine_obj = datetime.strptime(fine_str, "%Y-%m-%d").date()
-    except ValueError:
-        return "Errore di formato. Inserisci le date come AAAA-MM-GG.", "msg-box msg-errore"
-
-    codice_medico = session_data.get("codiceUtente")
-
-    esito = terapia_controller.crea_terapia(
-        codice_paziente=paziente_cod,
-        codice_diabetologo=codice_medico,
-        codice_farmaco=farmaco,
-        assunzione_giornaliera=int(assunzioni),
-        quantita=float(qty),
-        indicazioni=indicazioni,
-        data_inizio=data_inizio_obj,
-        data_fine=data_fine_obj
-    )
-
-    return esito, "msg-box msg-successo"
 
 
 @callback(
@@ -257,6 +275,7 @@ def carica_messaggi_paziente(codice_paziente):
 
     return lista_html
 
+
 @callback(
     Output("med-anam-patologie", "value"),
     Output("med-anam-comorbidita", "value"),
@@ -265,7 +284,6 @@ def carica_messaggi_paziente(codice_paziente):
     prevent_initial_call=True
 )
 def carica_anamnesi_paziente(codice_paziente):
-    """Carica i dati nei campi di testo quando il medico seleziona un paziente."""
     if not codice_paziente:
         return "", "", ""
 
@@ -288,7 +306,6 @@ def carica_anamnesi_paziente(codice_paziente):
     prevent_initial_call=True
 )
 def salva_anamnesi(n_clicks, codice_paziente, patologie, comorbidita, rischio):
-    """Gestisce il salvataggio o l'aggiornamento dell'anamnesi."""
     if not codice_paziente:
         return "Attenzione: seleziona un paziente prima di salvare.", "msg-box msg-errore"
 

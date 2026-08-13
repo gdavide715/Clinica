@@ -1,4 +1,6 @@
 id,codicePaziente,tipologia,descrizione
 1,U003,FattoreRischio,Ex-fumatrice
-2,U004,Comorbidita,Ipertensione
 3,U005,FattoreRischio,Obesita
+4,U004,PregressaPatologia,cecità
+5,U004,Comorbidita,non so cosa sia
+6,U004,FattoreRischio,gas instestinale
