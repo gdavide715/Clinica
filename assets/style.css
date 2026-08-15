@@ -190,7 +190,19 @@ body {
 
 .form-datepicker {
     display: block;
-    margin-bottom: 15px;
+    margin-bottom: 12px;/
+}
+
+.form-datepicker .DateInput_input {
+    font-size: 12px;
+    padding: 8px;
+    border: 1px solid;
+    border-radius: 2px;
+    box-sizing: border-box;
+}
+
+.form-datepicker .DateInput_label {
+    display: none;
 }
 
 /* ==========================================================================

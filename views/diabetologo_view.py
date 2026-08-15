@@ -348,29 +348,21 @@ def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
     codice_medico = session_data.get("codiceUtente")
     oggi = date.today()
 
-    # Recupera terapie attive del paziente
-    terapie_attive = terapia_controller.get_terapie_attive_paziente(codice_paziente)
+    # Recupero terapie del paziente
+    tutte_terapie = terapia_controller.get_tutte_terapie_paziente(codice_paziente)
 
-    # Cerca terapia con stesso farmaco
-    terapia_esistente = next(
-        (t for t in terapie_attive if t.codiceFarmaco == codice_farmaco),
-        None
-    )
+    nuova_inizio = date.fromisoformat(data_inizio)
+    nuova_fine = date.fromisoformat(data_fine)
 
-    # Se esiste, aggiorna
-    if terapia_esistente:
-        esito = terapia_controller.aggiorna_terapia(
-            terapia_esistente.id,
-            assunzioneGiornaliera=int(assunzioni),
-            quantita=float(quantita),
-            indicazioni=indicazioni,
-            dataInizio=date.fromisoformat(data_inizio),
-            dataFine=date.fromisoformat(data_fine),
-            ultimaModifica=oggi
-        )
-        return esito, "msg-box msg-successo"
+    # Verifica sovrapposizione
+    def sovrapposte(t):
+        return not (nuova_fine < t.dataInizio or nuova_inizio > t.dataFine)
 
-    # Altrimenti, crea nuova terapia
+    # Eliminazione terapie con stesso farmaco e sovrapposte
+    for t in tutte_terapie:
+        if t.codiceFarmaco == codice_farmaco and sovrapposte(t):
+            terapia_controller.dm_terapie.delete_row("id", t.id)
+
     esito = terapia_controller.crea_terapia(
         codice_paziente=codice_paziente,
         codice_diabetologo=codice_medico,
@@ -378,8 +370,8 @@ def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
         assunzione_giornaliera=int(assunzioni),
         quantita=float(quantita),
         indicazioni=indicazioni,
-        data_inizio=date.fromisoformat(data_inizio),
-        data_fine=date.fromisoformat(data_fine),
+        data_inizio=nuova_inizio,
+        data_fine=nuova_fine,
         ultima_modifica=oggi
     )
 

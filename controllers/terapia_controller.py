@@ -61,3 +61,9 @@ class TerapiaController:
 
         terapie = [TerapiaDiabetica.from_row(row) for row in df.to_dict("records")]
         return [t for t in terapie if t.is_attiva(oggi)]
+    
+    def get_tutte_terapie_paziente(self, codice_paziente: str) -> list[TerapiaDiabetica]:
+        """Restituisce tutte le terapie del paziente, attive e non, come oggetti TerapiaDiabetica."""
+        df = self._df_terapie_paziente(codice_paziente)
+        return [TerapiaDiabetica.from_row(row) for row in df.to_dict("records")]
+
