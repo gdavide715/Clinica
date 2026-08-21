@@ -6,3 +6,5 @@ id,codicePaziente,livelloGlicemia,data,ora,momentoPasto
 5,U004,210.0,2026-08-07,13:00,post_pasto
 6,U003,110.0,2026-08-13,12:00,pre_pasto
 7,U003,120.0,2026-08-13,13:00,pre_pasto
+8,U003,300.0,2026-08-21,17:10,post_pasto
+9,U003,150.0,2026-08-21,17:30,pre_pasto

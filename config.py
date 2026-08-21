@@ -19,6 +19,7 @@ CSV_PATHS = {
     "segnalazioni_paziente": os.path.join(DATA_DIR, "segnalazioni_paziente.csv"),
     "anamnesi_paziente": os.path.join(DATA_DIR, "anamnesi_paziente.csv"),
     "diabetologi": os.path.join(DATA_DIR, "diabetologi.csv"),
+    "notifiche": os.path.join(DATA_DIR, "notifiche.csv"),
 }
 
 # --- Soglie cliniche glicemia (mg/dL), da specifica ---

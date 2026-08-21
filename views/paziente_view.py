@@ -13,7 +13,10 @@ from controllers.contatto_controller import ContattoController
 from controllers.terapia_controller import TerapiaController
 from models.my_enum.pasto import Pasto
 from models.my_enum.tipo_segnalazione_paziente import TipoSegnalazionePaziente
+from dash import ctx
+from controllers.notifica_controller import NotificaController
 
+notifica_controller = NotificaController()
 segnalazione_controller = SegnalazioneController()
 glicemia_controller = GlicemiaController()
 assunzione_controller = AssunzioneFarmacoController()
@@ -193,6 +196,22 @@ def paziente_layout(session_data):
 
                     html.Button("Invia al Medico", id="btn-salva-seg", n_clicks=0, className="btn btn-arancio"),
                     html.Div(id="msg-segnalazione", className="msg-box--empty"),
+                ])
+            ]),
+
+            # ---------------------------
+            # Centro Notifiche Paziente
+            # ---------------------------
+            dcc.Tab(label='Centro Notifiche', children=[
+                html.Div(className="tab-content", children=[
+                    html.H4("Avvisi e Promemoria"),
+                    html.P("Elenco delle notifiche di sistema relative alle tue terapie e al diario clinico.", className="dashboard-subtitle"),
+                    
+                    html.Button("Segna tutte come lette", id="btn-leggi-notifiche-paz", n_clicks=0, className="btn btn-blu", style={"marginBottom": "20px"}),
+                    
+                    html.Div(id="paz-notifiche-lista", className="card-list-container"),
+
+                    dcc.Interval(id="paz-interval-notifiche", interval=30000, n_intervals=0)
                 ])
             ]),
 
@@ -442,3 +461,39 @@ def carica_terapie_personali(session_data, _):
         lista.append(card)
 
     return lista
+
+@callback(
+    Output("paz-notifiche-lista", "children"),
+    Input("session-store", "data"),
+    Input("btn-leggi-notifiche-paz", "n_clicks"),
+    Input("paz-interval-notifiche", "n_intervals")
+)
+def carica_notifiche_paziente(session_data, n_clicks, n_intervals):
+    """Carica e gestisce gli alert destinati al paziente."""
+    if not session_data or session_data.get("ruolo") != "paziente":
+        return []
+        
+    codice_paziente = session_data.get("codiceUtente")
+    
+    # 1. Se l'utente ha premuto il bottone, smarchiamo tutto come letto
+    if ctx.triggered_id == "btn-leggi-notifiche-paz":
+        notifiche_non_lette = notifica_controller.get_notifiche_utente(codice_paziente, solo_non_lette=True)
+        for n in notifiche_non_lette:
+            notifica_controller.segna_come_letta(n.id)
+            
+    # 2. Recuperiamo la lista (che sarà vuota se ha appena premuto il bottone)
+    notifiche = notifica_controller.get_notifiche_utente(codice_paziente, solo_non_lette=True)
+    
+    if not notifiche:
+        return html.P("Nessun nuovo avviso o promemoria.", className="card-list-empty")
+        
+    lista_html = []
+    for notifica in notifiche:
+        card = html.Div(className="card-list-item msg-alert", children=[
+            html.Strong(f"Tipo: {notifica.tipo.value}"),
+            html.Span(f"Data: {notifica.data}", className="card-list-meta"),
+            html.P(notifica.messaggio, style={"marginTop": "5px"}),
+        ])
+        lista_html.append(card)
+        
+    return lista_html

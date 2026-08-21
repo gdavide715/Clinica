@@ -9,7 +9,10 @@ from controllers.paziente_controller import PazienteController
 from models.my_enum.pasto import Pasto
 from controllers.anamnesi_controller import AnamnesiController
 from models.my_enum.tipo_condizione_clinica import TipoCondizioneClinica
+from dash import ctx
+from controllers.notifica_controller import NotificaController
 
+notifica_controller = NotificaController()
 anamnesi_controller = AnamnesiController()
 segnalazione_controller = SegnalazioneController()
 terapia_controller = TerapiaController()
@@ -120,7 +123,20 @@ def diabetologo_layout(session_data):
                         html.Div(id="msg-anamnesi", className="msg-box--empty"),
                     ])
                 ]),
-            ])
+
+                dcc.Tab(label='Centro notifiche', children=[
+                    html.Div(className="tab-content", children=[
+                        html.H4("Alert e avvisi di sistema"),
+                        html.P("Elenco delle notifiche di gravità (glicemia fuori soglia) e promemoria farmaci dei pazienti assegnati.", className="dashboard-subtitle"),
+                        
+                        html.Button("Segna tutte come lette", id="btn-leggi-notifiche", n_clicks=0, className="btn btn-blu", style={"marginBottom": "20px"}),
+                        
+                        html.Div(id="med-notifiche-lista", className="card-list-container"),
+                    ])
+                ]),
+            ]),
+
+            dcc.Interval(id="med-interval-dashboard", interval=30000, n_intervals=0)
         ])
     ])
 
@@ -148,7 +164,7 @@ def filtra_intervallo(storico, Inizio, Fine):
         return storico
 
     start_dt = datetime.strptime(Inizio, "%Y-%m-%d")
-    end_dt = datetime.strptime(Fine, "%Y-%m-%d")
+    end_dt = datetime.strptime(Fine, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
 
     return [r for r in storico if start_dt <= r.as_datetime() <= end_dt]
 
@@ -158,9 +174,10 @@ def filtra_intervallo(storico, Inizio, Fine):
     Output("med-glicemia-graph", "figure"),
     Input("med-paziente-select", "value"),
     Input("med-glicemia-range", "start_date"),
-    Input("med-glicemia-range", "end_date")
+    Input("med-glicemia-range", "end_date"),
+    Input("med-interval-dashboard", "n_intervals")
 )
-def aggiorna_dashboard_paziente(codice_paziente, Inizio, Fine):
+def aggiorna_dashboard_paziente(codice_paziente, Inizio, Fine, n_intervals):
     if not codice_paziente:
         return "hidden", go.Figure()
 
@@ -376,3 +393,40 @@ def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
     )
 
     return esito, "msg-box msg-successo"
+
+@callback(
+    Output("med-notifiche-lista", "children"),
+    Input("med-paziente-select", "value"),
+    Input("btn-leggi-notifiche", "n_clicks"),
+    Input("med-interval-dashboard", "n_intervals"),
+    State("session-store", "data"),
+)
+def gestisci_notifiche(codice_paziente, n_clicks, n_intervals, session_data):
+    if not session_data:
+        return []
+        
+    codice_medico = session_data.get("codiceUtente")
+    
+    # 1. Se l'azione è stata scatenata dal click sul bottone, segniamo tutto come letto
+    if ctx.triggered_id == "btn-leggi-notifiche":
+        notifiche_non_lette = notifica_controller.get_notifiche_utente(codice_medico, solo_non_lette=True)
+        for n in notifiche_non_lette:
+            notifica_controller.segna_come_letta(n.id)
+            
+    # 2. Recuperiamo la lista aggiornata dal database
+    notifiche = notifica_controller.get_notifiche_utente(codice_medico, solo_non_lette=True)
+    
+    if not notifiche:
+        return html.P("Nessun nuovo alert o notifica da leggere.", className="card-list-empty")
+        
+    lista_html = []
+    for notifica in notifiche:
+        # Aggiungiamo la classe msg-alert per dare lo sfondo arancione tipico degli avvisi
+        card = html.Div(className="card-list-item msg-alert", children=[
+            html.Strong(f"Tipo: {notifica.tipo.value}"),
+            html.Span(f"Data: {notifica.data}", className="card-list-meta"),
+            html.P(notifica.messaggio, style={"marginTop": "5px"}),
+        ])
+        lista_html.append(card)
+        
+    return lista_html

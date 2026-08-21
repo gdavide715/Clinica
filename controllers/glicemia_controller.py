@@ -1,13 +1,7 @@
 """
-Implementa il sequence diagram "RilevazioneRegistrazioneGlicemia.txt":
-
-Paziente -> Sistema: inserisciRilevazione(...)
-Sistema -> Rilevazione Glicemica: salvaRilevazione(...)
-Sistema --> Paziente: confermaInserimento
-alt valori fuori soglia -> Sistema -> Diabetologo: alertGlicemiaFuoriSoglia(...)
-Sistema --> Paziente: esitoLivelloGlicemia
+Implementa il sequence diagram "RilevazioneRegistrazioneGlicemia.txt"
+con l'aggiunta delle notifiche persistenti e della gravità differenziata.
 """
-
 from datetime import date, time
 
 from config import (
@@ -19,6 +13,8 @@ from config import (
 from models.data_manager import DataManager
 from models.rilevazione_glicemica import RilevazioneGlicemica
 from models.my_enum.pasto import Pasto
+from models.my_enum.tipo_notifica import TipoNotifica
+from controllers.notifica_controller import NotificaController
 
 
 class GlicemiaController:
@@ -26,24 +22,24 @@ class GlicemiaController:
     def __init__(self):
         self.dm_rilevazioni = DataManager(CSV_PATHS["rilevazioni_glicemiche"])
         self.dm_pazienti = DataManager(CSV_PATHS["pazienti"])
+        self.notifica_controller = NotificaController()
 
-    def inserisci_rilevazione(self, codice_paziente: str, data: date, ora: time,
+    def inserisci_rilevazione(self, codice_paziente: str, data_ril: date, ora: time,
                            livello_glicemia: float, momento_pasto: Pasto):
         """
-        Restituisce (esito_livello: str, alert_inviato: bool, codice_medico|None)
+        Restituisce (esito_livello: str, alert_inviato: bool, codice_medico: str|None)
         """
         nuovo_id = self.dm_rilevazioni.get_next_id("id")
         rilevazione = RilevazioneGlicemica(
             id=nuovo_id,
             codicePaziente=codice_paziente,
             livelloGlicemia=livello_glicemia,
-            data=data,
+            data=data_ril,
             ora=ora,
             momentoPasto=momento_pasto,
         )
         
-
-        # Sistema -> Rilevazione Glicemica: salvaRilevazione(...)
+        # Salvataggio fisico nel file rilevazioni_glicemiche.csv
         self.dm_rilevazioni.append_row(rilevazione.to_row())
 
         fuori_soglia = rilevazione.fuori_soglia(
@@ -52,19 +48,58 @@ class GlicemiaController:
 
         alert_inviato = False
         codice_medico = None
+        esito = "nella norma"
+
         if fuori_soglia:
-            # Sistema -> Diabetologo: alertGlicemiaFuoriSoglia(Lvl glicemia)
+            # 1. Calcolo matematico dello scarto dai limiti consentiti
+            delta = 0
+            if momento_pasto == Pasto.PRE_PASTO:
+                if livello_glicemia < GLICEMIA_PRE_PASTO_MIN:
+                    delta = GLICEMIA_PRE_PASTO_MIN - livello_glicemia
+                elif livello_glicemia > GLICEMIA_PRE_PASTO_MAX:
+                    delta = livello_glicemia - GLICEMIA_PRE_PASTO_MAX
+            else:
+                if livello_glicemia > GLICEMIA_POST_PASTO_MAX:
+                    delta = livello_glicemia - GLICEMIA_POST_PASTO_MAX
+            
+            # 2. Assegnazione gravità differenziata in base allo scarto
+            if delta <= 20:
+                gravita = "Lieve"
+            elif delta <= 50:
+                gravita = "Media"
+            else:
+                gravita = "Grave"
+                
+            esito = f"fuori soglia ({gravita})"
+
+            # 3. Identificazione del medico e salvataggio della notifica persistente
             df_pazienti = self.dm_pazienti.read_all()
             row = df_pazienti[df_pazienti["codiceUtente"] == codice_paziente]
+            
             if not row.empty:
                 codice_medico = row.iloc[0]["codiceMedicoRiferimento"]
-                alert_inviato = True  # qui si aggancerebbe un notification_controller
+                alert_inviato = True 
+                
+                # Costruiamo il testo che il medico leggerà nella sua Tab
+                msg = (f"Anomalia {gravita.upper()}: glicemia a {livello_glicemia} mg/dL "
+                       f"({momento_pasto.value}) registrata il {data_ril} alle {ora.strftime('%H:%M')}. "
+                       f"Paziente: {codice_paziente}")
+                
+                # Scrittura su notifiche.csv per renderla leggibile al prossimo login
+                self.notifica_controller.crea_notifica(
+                    codice_utente=codice_medico,
+                    tipo=TipoNotifica.GLICEMIA,
+                    messaggio=msg,
+                    data_notifica=date.today()
+                )
 
-        esito = "fuori soglia" if fuori_soglia else "nella norma"
         return esito, alert_inviato, codice_medico
 
     def get_storico_paziente(self, codice_paziente: str) -> list[RilevazioneGlicemica]:
         """Restituisce lo storico delle rilevazioni glicemiche di un paziente."""
         df = self.dm_rilevazioni.read_all()
+        if df.empty or "codicePaziente" not in df.columns:
+            return []
+            
         df_paziente = df[df["codicePaziente"] == codice_paziente]
         return [RilevazioneGlicemica.from_row(row) for row in df_paziente.to_dict("records")]
