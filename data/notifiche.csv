@@ -1,8 +1,13 @@
 id,codiceUtente,tipo,messaggio,data,letta
 1,U001,Glicemia,Anomalia GRAVE: glicemia a 300.0 mg/dL (post_pasto) registrata il 2026-08-21 alle 17:10. Paziente: U003,2026-08-21,False
-2,U003,Farmaco,Attenzione: non risultano registrate tutte le assunzioni previste per oggi (2026-08-21).,2026-08-21,False
+2,U003,Farmaco,Attenzione: non risultano registrate tutte le assunzioni previste per oggi (2026-08-21).,2026-08-21,True
 3,U001,Farmaco,Allarme aderenza: il paziente U003 non registra assunzioni di farmaci da 3 giorni consecutivi.,2026-08-21,False
 4,U004,Farmaco,Attenzione: non risultano registrate tutte le assunzioni previste per oggi (2026-08-21).,2026-08-21,False
 5,U005,Farmaco,Attenzione: non risultano registrate tutte le assunzioni previste per oggi (2026-08-21).,2026-08-21,False
 6,U002,Farmaco,Allarme aderenza: il paziente U005 non registra assunzioni di farmaci da 3 giorni consecutivi.,2026-08-21,False
 7,U001,Glicemia,Anomalia LIEVE: glicemia a 150.0 mg/dL (pre_pasto) registrata il 2026-08-21 alle 17:30. Paziente: U003,2026-08-21,False
+8,U003,Farmaco,Attenzione: non risultano registrate tutte le assunzioni di farmaci previste per la giornata del 2026-08-23.,2026-08-23,False
+9,U001,Farmaco,Allarme aderenza: il paziente U003 non registra assunzioni di farmaci da 3 giorni consecutivi (fino al 2026-08-23).,2026-08-23,False
+10,U004,Farmaco,Attenzione: non risultano registrate tutte le assunzioni di farmaci previste per la giornata del 2026-08-23.,2026-08-23,False
+11,U005,Farmaco,Attenzione: non risultano registrate tutte le assunzioni di farmaci previste per la giornata del 2026-08-23.,2026-08-23,False
+12,U002,Farmaco,Allarme aderenza: il paziente U005 non registra assunzioni di farmaci da 3 giorni consecutivi (fino al 2026-08-23).,2026-08-23,False
