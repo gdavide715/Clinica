@@ -16,7 +16,14 @@ class SegnalazioneController:
 
     def invia_segnalazione(self, codice_paziente: str, descrizione: str,
                             data_inizio: date, data_fine: date,
-                            evento: TipoSegnalazionePaziente) -> str:
+                            evento: TipoSegnalazionePaziente) -> tuple[bool, str]:
+        if not codice_paziente:
+            return False, "Codice paziente mancante."
+        if not descrizione or not descrizione.strip():
+            return False, "La descrizione non puo' essere vuota."
+        if data_fine < data_inizio:
+            return False, "La data di fine non puo' essere precedente alla data di inizio."
+
         segnalazione = SegnalazionePaziente(
             id=self.dm_segnalazioni.get_next_id("id"),
             codicePaziente=codice_paziente,
@@ -26,7 +33,7 @@ class SegnalazioneController:
             evento=evento,
         )
         self.dm_segnalazioni.append_row(segnalazione.to_row())
-        return "Segnalazione inviata con successo al diabetologo."
+        return True, "Segnalazione inviata con successo al diabetologo."
 
     def leggi_segnalazioni(self, codice_paziente: str) -> list[SegnalazionePaziente]:
         df = self.dm_segnalazioni.read_all()

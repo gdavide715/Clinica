@@ -19,16 +19,26 @@ from controllers.notifica_controller import NotificaController
 
 class GlicemiaController:
 
+    LIVELLO_GLICEMIA_MIN, LIVELLO_GLICEMIA_MAX = 10, 600
+
     def __init__(self):
         self.dm_rilevazioni = DataManager(CSV_PATHS["rilevazioni_glicemiche"])
         self.dm_pazienti = DataManager(CSV_PATHS["pazienti"])
         self.notifica_controller = NotificaController()
 
     def inserisci_rilevazione(self, codice_paziente: str, data_ril: date, ora: time,
-                           livello_glicemia: float, momento_pasto: Pasto):
+                           livello_glicemia: float, momento_pasto: Pasto) -> tuple[bool, str, bool, str | None]:
         """
-        Restituisce (esito_livello: str, alert_inviato: bool, codice_medico: str|None)
+        Restituisce (successo: bool, esito: str, alert_inviato: bool, codice_medico: str|None).
+        Se successo e' False, esito contiene il messaggio di errore e gli
+        altri due campi sono rispettivamente False e None.
         """
+        if livello_glicemia is None or not (self.LIVELLO_GLICEMIA_MIN <= livello_glicemia <= self.LIVELLO_GLICEMIA_MAX):
+            return False, (
+                f"Il livello di glicemia deve essere un valore tra "
+                f"{self.LIVELLO_GLICEMIA_MIN} e {self.LIVELLO_GLICEMIA_MAX} mg/dL."
+            ), False, None
+
         nuovo_id = self.dm_rilevazioni.get_next_id("id")
         rilevazione = RilevazioneGlicemica(
             id=nuovo_id,
@@ -93,7 +103,7 @@ class GlicemiaController:
                     data_notifica=date.today()
                 )
 
-        return esito, alert_inviato, codice_medico
+        return True, esito, alert_inviato, codice_medico
 
     def get_storico_paziente(self, codice_paziente: str) -> list[RilevazioneGlicemica]:
         """Restituisce lo storico delle rilevazioni glicemiche di un paziente."""

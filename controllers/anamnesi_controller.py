@@ -37,9 +37,11 @@ class AnamnesiController:
             TipoCondizioneClinica.FATTORE_RISCHIO.value: "\n".join(risultati[TipoCondizioneClinica.FATTORE_RISCHIO.value])
         }
 
-    def aggiorna_anamnesi(self, codice_paziente: str, patologie: str, comorbidita: str, fattori_rischio: str) -> str:
+    def aggiorna_anamnesi(self, codice_paziente: str, patologie: str, comorbidita: str, fattori_rischio: str) -> tuple[bool, str]:
         """Sovrascrive l'anamnesi spezzettando i testi in record singoli."""
-        
+        if not codice_paziente:
+            return False, "Codice paziente mancante."
+
         # 1. Eliminiamo i vecchi record
         self.dm_anamnesi.delete_row("codicePaziente", codice_paziente)
 
@@ -47,9 +49,9 @@ class AnamnesiController:
         def salva_voci(testo: str, tipologia: TipoCondizioneClinica):
             if not testo:
                 return
-            
+
             voci = [v.strip() for v in testo.replace(',', '\n').split('\n') if v.strip()]
-            
+
             for voce in voci:
                 nuovo_id = self.dm_anamnesi.get_next_id("id")
                 anamnesi = AnamnesiPaziente(
@@ -65,4 +67,4 @@ class AnamnesiController:
         salva_voci(comorbidita, TipoCondizioneClinica.COMORBIDITA)
         salva_voci(fattori_rischio, TipoCondizioneClinica.FATTORE_RISCHIO)
 
-        return "Anamnesi aggiornata con successo nel fascicolo clinico."
+        return True, "Anamnesi aggiornata con successo nel fascicolo clinico."

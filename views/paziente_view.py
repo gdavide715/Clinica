@@ -207,7 +207,7 @@ def paziente_layout(session_data):
                     html.H4("Avvisi e Promemoria"),
                     html.P("Elenco delle notifiche di sistema relative alle tue terapie e al diario clinico.", className="dashboard-subtitle"),
                     
-                    html.Button("Segna tutte come lette", id="btn-leggi-notifiche-paz", n_clicks=0, className="btn btn-blu", style={"marginBottom": "20px"}),
+                    html.Button("Segna tutte come lette", id="btn-leggi-notifiche-paz", n_clicks=0, className="btn btn-blu btn-mb-lg"),
                     
                     html.Div(id="paz-notifiche-lista", className="card-list-container"),
 
@@ -249,15 +249,18 @@ def handle_salva_glicemia(n_clicks, data_str, ora_str, livello, pasto_val, sessi
     try:
         data_obj = datetime.strptime(data_str, "%Y-%m-%d").date()
         ora_obj = datetime.strptime(ora_str, "%H:%M").time()
-    except:
+    except ValueError:
         return "Errore nel formato di data o ora.", "msg-box msg-errore"
 
     codice_paz = session_data.get("codiceUtente")
     pasto_enum = Pasto(pasto_val)
 
-    esito, alert, medico = glicemia_controller.inserisci_rilevazione(
+    successo, esito, alert, medico = glicemia_controller.inserisci_rilevazione(
         codice_paz, data_obj, ora_obj, float(livello), pasto_enum
     )
+
+    if not successo:
+        return esito, "msg-box msg-errore"
 
     msg = f"Rilevazione registrata. Esito: {esito.upper()}."
     classe = "msg-box msg-alert" if alert else "msg-box msg-successo"
@@ -300,7 +303,7 @@ def handle_salva_farmaco(n_clicks, id_terapia, data_str, ora_str, qty, session_d
     try:
         data_obj = datetime.strptime(data_str, "%Y-%m-%d").date()
         ora_obj = datetime.strptime(ora_str, "%H:%M").time()
-    except:
+    except ValueError:
         return "Errore nel formato di data o ora.", "msg-box msg-errore"
 
     codice_paz = session_data.get("codiceUtente")
@@ -335,17 +338,18 @@ def handle_salva_segnalazione(n_clicks, evento_val, descrizione, inizio_str, fin
     try:
         data_inizio_obj = datetime.strptime(inizio_str, "%Y-%m-%d").date()
         data_fine_obj = datetime.strptime(fine_str, "%Y-%m-%d").date()
-    except:
+    except ValueError:
         return "Errore nel formato delle date.", "msg-box msg-errore"
 
     codice_paz = session_data.get("codiceUtente")
     evento_enum = TipoSegnalazionePaziente(evento_val)
 
-    esito = segnalazione_controller.invia_segnalazione(
+    successo, esito = segnalazione_controller.invia_segnalazione(
         codice_paz, descrizione, data_inizio_obj, data_fine_obj, evento_enum
     )
 
-    return esito, "msg-box msg-successo"
+    classe = "msg-box msg-successo" if successo else "msg-box msg-errore"
+    return esito, classe
 
 @callback(
     Output("paz-info-grafico", "figure"),
@@ -491,7 +495,7 @@ def carica_notifiche_paziente(session_data, n_clicks, n_intervals):
         card = html.Div(className="card-list-item msg-alert", children=[
             html.Strong(f"Tipo: {notifica.tipo.value}"),
             html.Span(f"Data: {notifica.data}", className="card-list-meta"),
-            html.P(notifica.messaggio, style={"marginTop": "5px"}),
+            html.P(notifica.messaggio, className="card-list-message"),
         ])
         lista_html.append(card)
         

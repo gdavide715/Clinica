@@ -175,7 +175,7 @@ def diabetologo_layout(session_data):
                         html.H4("Alert e avvisi di sistema"),
                         html.P("Elenco delle notifiche di gravità (glicemia fuori soglia) e promemoria farmaci dei pazienti assegnati.", className="dashboard-subtitle"),
                         
-                        html.Button("Segna tutte come lette", id="btn-leggi-notifiche", n_clicks=0, className="btn btn-blu", style={"marginBottom": "20px"}),
+                        html.Button("Segna tutte come lette", id="btn-leggi-notifiche", n_clicks=0, className="btn btn-blu btn-mb-lg"),
                         
                         html.Div(id="med-notifiche-lista", className="card-list-container"),
                     ])
@@ -372,14 +372,15 @@ def salva_anamnesi(n_clicks, codice_paziente, patologie, comorbidita, rischio):
     if not codice_paziente:
         return "Attenzione: seleziona un paziente prima di salvare.", "msg-box msg-errore"
 
-    esito = anamnesi_controller.aggiorna_anamnesi(
+    successo, esito = anamnesi_controller.aggiorna_anamnesi(
         codice_paziente,
         patologie or "",
         comorbidita or "",
         rischio or ""
     )
 
-    return esito, "msg-box msg-successo"
+    classe = "msg-box msg-successo" if successo else "msg-box msg-errore"
+    return esito, classe
 
 
 @callback(
@@ -559,7 +560,7 @@ def gestisci_notifiche(codice_paziente, n_clicks, n_intervals, session_data):
         card = html.Div(className="card-list-item msg-alert", children=[
             html.Strong(f"Tipo: {notifica.tipo.value}"),
             html.Span(f"Data: {notifica.data}", className="card-list-meta"),
-            html.P(notifica.messaggio, style={"marginTop": "5px"}),
+            html.P(notifica.messaggio, className="card-list-message"),
         ])
         lista_html.append(card)
         

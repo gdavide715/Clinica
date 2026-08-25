@@ -340,7 +340,16 @@ body {
     margin: 0;
 }
 
+.card-list-item .card-list-message {
+    margin-top: 5px;
+}
+
 .card-list-empty {
     color: #666;
     font-style: italic;
+}
+
+/* Utilita': spaziatura sotto un bottone seguito da una lista */
+.btn-mb-lg {
+    margin-bottom: 20px;
 }

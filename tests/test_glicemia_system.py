@@ -54,7 +54,7 @@ class TestGlicemiaSystem(unittest.TestCase):
 
     def test_inserimento_glicemia_nella_norma(self):
         """Test: Glicemia pre-pasto a 100 mg/dL non genera alcun alert."""
-        esito, alert, medico = self.controller.inserisci_rilevazione(
+        successo, esito, alert, medico = self.controller.inserisci_rilevazione(
             codice_paziente="U001",
             data_ril=date.today(),
             ora=time(8, 0),
@@ -62,6 +62,7 @@ class TestGlicemiaSystem(unittest.TestCase):
             momento_pasto=Pasto.PRE_PASTO
         )
 
+        self.assertTrue(successo)
         self.assertEqual(esito, "nella norma")
         self.assertFalse(alert, "Non deve partire nessun alert")
         self.assertIsNone(medico)
@@ -73,7 +74,7 @@ class TestGlicemiaSystem(unittest.TestCase):
 
     def test_inserimento_iperglicemia_grave(self):
         """Test: Glicemia pre-pasto a 190 mg/dL (soglia +60) genera alert grave al medico."""
-        esito, alert, medico = self.controller.inserisci_rilevazione(
+        successo, esito, alert, medico = self.controller.inserisci_rilevazione(
             codice_paziente="U001",
             data_ril=date.today(),
             ora=time(12, 0),
@@ -81,6 +82,7 @@ class TestGlicemiaSystem(unittest.TestCase):
             momento_pasto=Pasto.PRE_PASTO
         )
 
+        self.assertTrue(successo)
         self.assertIn("Grave", esito, "Lo scarto di +60 deve essere classificato come Grave")
         self.assertTrue(alert, "Deve partire un alert al medico")
         self.assertEqual(medico, "M001", "L'alert deve essere indirizzato al medico corretto")
@@ -89,12 +91,31 @@ class TestGlicemiaSystem(unittest.TestCase):
         with open(self.test_notifiche_csv, "r") as f:
             righe = f.readlines()
             self.assertEqual(len(righe), 2, "Deve essere stata scritta la notifica nel CSV")
-            
+
             # Verifichiamo che il messaggio contenga le keyword corrette
             notifica = righe[1]
             self.assertIn("M001", notifica)
             self.assertIn("GRAVE", notifica)
             self.assertIn("190.0", notifica)
+
+    def test_validazione_livello_glicemia_fuori_range(self):
+        """Test: un valore clinicamente impossibile (es. 9999) viene respinto prima del salvataggio."""
+        successo, esito, alert, medico = self.controller.inserisci_rilevazione(
+            codice_paziente="U001",
+            data_ril=date.today(),
+            ora=time(9, 0),
+            livello_glicemia=9999.0,
+            momento_pasto=Pasto.PRE_PASTO
+        )
+
+        self.assertFalse(successo)
+        self.assertIn("mg/dL", esito)
+        self.assertFalse(alert)
+        self.assertIsNone(medico)
+
+        # Nessuna riga deve essere stata scritta ne' in rilevazioni ne' in notifiche
+        with open(self.test_ril_csv, "r") as f:
+            self.assertEqual(len(f.readlines()), 1, "Un valore non valido non deve essere salvato")
 
 if __name__ == "__main__":
     unittest.main()
