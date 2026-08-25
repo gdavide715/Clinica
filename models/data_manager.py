@@ -2,6 +2,7 @@
 
 
 import os
+import datetime as _dt
 import pandas as pd
 from filelock import FileLock  # è un lucchetto per non permettere di 
 # leggere/modificare lo stesso file csv in cotemporanea e avere problemi di lettura inconsistente, lettura sporca, aggiornamento fantasma....
@@ -47,6 +48,8 @@ class DataManager:
             if not mask.any():
                 return False
             for col, val in updates.items():
+                if isinstance(val, (_dt.date, _dt.time, _dt.datetime)):
+                    val = str(val)
                 df.loc[mask, col] = val
             df.to_csv(self.csv_path, index=False)
             return True

@@ -439,8 +439,7 @@ def carica_terapie_personali(session_data, _):
     lista = []
 
     # Nome del diabetologo (se disponibile)
-    nome_medico = contatto_controller.get_nome_medico(codice_paz) \
-        if hasattr(contatto_controller, "get_nome_medico") else "Medico di riferimento"
+    nome_medico = contatto_controller.get_nome_medico(codice_paz) or "Medico di riferimento"
 
     for t in terapie:
         farmaco = farmaco_controller.get_farmaco(t.codiceFarmaco)

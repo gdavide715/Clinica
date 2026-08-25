@@ -1,8 +1,4 @@
 id,codicePaziente,codiceDiabetologo,codiceFarmaco,assunzioneGiornaliera,quantita,indicazioni,dataInizio,dataFine,ultimaModifica
-2,U004,U001,F002,1,10.0,lontano dai pasti,2026-02-01,2026-12-31,2026-02-01
-3,U005,U002,F003,1,100.0,dopo colazione,2026-03-15,2026-12-31,2026-03-15
-5,U003,U001,F003,150000,12.0,ho modificato questa terapia figliolo,2026-08-05,2026-08-26,2026-08-13
-6,U003,U001,F001,40000,12.0,volta buona?,2027-01-08,2027-03-20,2026-08-14
-7,U003,U001,F002,23,23.0,test delle 11 35,2026-08-10,2026-08-31,2026-08-14
-8,U003,U001,F001,23,23.0,adesso parlo io,2026-08-10,2026-08-31,2026-08-14
-9,U003,U001,F002,23,23.0,adesso parlo io,2027-01-01,2027-01-21,2026-08-14
+1,U003,U001,F001,2,500,dopo i pasti,2026-01-10,2026-12-31,2026-01-10
+2,U004,U001,F002,1,10,lontano dai pasti,2026-02-01,2026-12-31,2026-02-01
+3,U005,U002,F003,1,100,dopo colazione,2026-03-15,2026-12-31,2026-03-15

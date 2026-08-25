@@ -1,4 +1,5 @@
 from datetime import datetime, date
+import dash
 from dash import html, dcc, Input, Output, State, callback
 import plotly.graph_objects as go
 
@@ -6,6 +7,7 @@ from controllers.terapia_controller import TerapiaController
 from controllers.segnalazione_controller import SegnalazioneController
 from controllers.glicemia_controller import GlicemiaController
 from controllers.paziente_controller import PazienteController
+from controllers.farmaco_controller import FarmacoController
 from models.my_enum.pasto import Pasto
 from controllers.anamnesi_controller import AnamnesiController
 from models.my_enum.tipo_condizione_clinica import TipoCondizioneClinica
@@ -18,6 +20,12 @@ segnalazione_controller = SegnalazioneController()
 terapia_controller = TerapiaController()
 glicemia_controller = GlicemiaController()
 paziente_controller = PazienteController()
+farmaco_controller = FarmacoController()
+
+
+def _opzioni_farmaci():
+    """Opzioni del dropdown farmaco, condivise tra 'Prescrivi' e 'Modifica'."""
+    return [{"label": f.nome, "value": f.codiceFarmaco} for f in farmaco_controller.get_tutti_farmaci()]
 
 
 def diabetologo_layout(session_data):
@@ -68,14 +76,14 @@ def diabetologo_layout(session_data):
                     html.Div(className="tab-content", children=[
                         html.H4("Nuova terapia farmacologica"),
 
-                        html.Label("Codice farmaco", className="form-label"),
-                        dcc.Input(id="med-ter-farmaco", type="text", className="form-input"),
+                        html.Label("Farmaco", className="form-label"),
+                        dcc.Dropdown(id="med-ter-farmaco", options=_opzioni_farmaci(), className="form-dropdown"),
 
                         html.Label("Assunzioni giornaliere", className="form-label"),
-                        dcc.Input(id="med-ter-assunzioni", type="number", className="form-input"),
+                        dcc.Input(id="med-ter-assunzioni", type="number", min=1, max=10, step=1, className="form-input"),
 
                         html.Label("Quantità per assunzione (mg/ml)", className="form-label"),
-                        dcc.Input(id="med-ter-qty", type="number", className="form-input"),
+                        dcc.Input(id="med-ter-qty", type="number", min=0.01, max=1000, className="form-input"),
 
                         html.Label("Indicazioni", className="form-label"),
                         dcc.Input(id="med-ter-ind", type="text", className="form-input"),
@@ -96,6 +104,44 @@ def diabetologo_layout(session_data):
 
                         html.Button("Salva prescrizione", id="btn-salva-terapia", n_clicks=0, className="btn btn-verde"),
                         html.Div(id="msg-terapia", className="msg-box--empty"),
+                    ])
+                ]),
+
+                dcc.Tab(label='Modifica terapie esistenti', children=[
+                    html.Div(className="tab-content", children=[
+                        html.H4("Modifica una terapia del paziente"),
+                        html.P(
+                            "Puoi modificare qualsiasi parametro tranne la data di inizio, che resta fissa. "
+                            "Per interrompere una terapia, seleziona 'Data fine' pari a oggi.",
+                            className="dashboard-subtitle"
+                        ),
+
+                        html.Label("Seleziona terapia", className="form-label"),
+                        dcc.Dropdown(id="med-mod-terapia-select", placeholder="Seleziona una terapia...", className="form-dropdown"),
+
+                        html.P(id="med-mod-info-inizio", className="dashboard-subtitle"),
+
+                        html.Label("Farmaco", className="form-label"),
+                        dcc.Dropdown(id="med-mod-farmaco", options=_opzioni_farmaci(), className="form-dropdown"),
+
+                        html.Label("Assunzioni giornaliere", className="form-label"),
+                        dcc.Input(id="med-mod-assunzioni", type="number", min=1, max=10, step=1, className="form-input"),
+
+                        html.Label("Quantità per assunzione (mg/ml)", className="form-label"),
+                        dcc.Input(id="med-mod-qty", type="number", min=0.01, max=1000, className="form-input"),
+
+                        html.Label("Indicazioni", className="form-label"),
+                        dcc.Input(id="med-mod-ind", type="text", className="form-input"),
+
+                        html.Label("Data fine", className="form-label"),
+                        dcc.DatePickerSingle(
+                            id="med-mod-fine",
+                            display_format="YYYY-MM-DD",
+                            className="form-datepicker",
+                        ),
+
+                        html.Button("Salva modifiche", id="btn-salva-modifica-terapia", n_clicks=0, className="btn btn-blu"),
+                        html.Div(id="msg-modifica-terapia", className="msg-box--empty"),
                     ])
                 ]),
 
@@ -351,48 +397,136 @@ def salva_anamnesi(n_clicks, codice_paziente, patologie, comorbidita, rischio):
     prevent_initial_call=True
 )
 def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
-                  assunzioni, quantita, indicazioni,
-                  data_inizio, data_fine, session_data):
+                   assunzioni, quantita, indicazioni,
+                   data_inizio_str, data_fine_str, session_data):
 
-    # Sessione non valida, callback non parte
     if session_data is None or session_data.get("codiceUtente") is None:
         return "Errore: sessione non valida.", "msg-box msg-errore"
 
-    # Validazione campi
-    if not all([codice_paziente, codice_farmaco, assunzioni, quantita, indicazioni, data_inizio, data_fine]):
+    if not all([codice_paziente, codice_farmaco, assunzioni, quantita, indicazioni, data_inizio_str, data_fine_str]):
         return "Compila tutti i campi della terapia.", "msg-box msg-errore"
 
+    try:
+        data_inizio = date.fromisoformat(data_inizio_str)
+        data_fine = date.fromisoformat(data_fine_str)
+    except ValueError:
+        return "Formato data non valido.", "msg-box msg-errore"
+
     codice_medico = session_data.get("codiceUtente")
-    oggi = date.today()
 
-    # Recupero terapie del paziente
-    tutte_terapie = terapia_controller.get_tutte_terapie_paziente(codice_paziente)
-
-    nuova_inizio = date.fromisoformat(data_inizio)
-    nuova_fine = date.fromisoformat(data_fine)
-
-    # Verifica sovrapposizione
-    def sovrapposte(t):
-        return not (nuova_fine < t.dataInizio or nuova_inizio > t.dataFine)
-
-    # Eliminazione terapie con stesso farmaco e sovrapposte
-    for t in tutte_terapie:
-        if t.codiceFarmaco == codice_farmaco and sovrapposte(t):
-            terapia_controller.dm_terapie.delete_row("id", t.id)
-
-    esito = terapia_controller.crea_terapia(
+    # crea_terapia crea sempre una NUOVA riga: non tocca mai le terapie
+    # esistenti, anche se farmaco e date coincidono con una gia' presente.
+    # Per modificare/interrompere una terapia esistente si usa l'apposito
+    # tab "Modifica terapie esistenti" (correggi_terapia).
+    successo, esito = terapia_controller.crea_terapia(
         codice_paziente=codice_paziente,
         codice_diabetologo=codice_medico,
         codice_farmaco=codice_farmaco,
         assunzione_giornaliera=int(assunzioni),
         quantita=float(quantita),
         indicazioni=indicazioni,
-        data_inizio=nuova_inizio,
-        data_fine=nuova_fine,
-        ultima_modifica=oggi
+        data_inizio=data_inizio,
+        data_fine=data_fine,
     )
 
-    return esito, "msg-box msg-successo"
+    classe = "msg-box msg-successo" if successo else "msg-box msg-errore"
+    return esito, classe
+
+
+@callback(
+    Output("med-mod-terapia-select", "options"),
+    Input("med-paziente-select", "value"),
+)
+def carica_terapie_paziente_per_modifica(codice_paziente):
+    """Elenco di TUTTE le terapie del paziente (attive e non), selezionabili per la modifica."""
+    if not codice_paziente:
+        return []
+
+    terapie = terapia_controller.get_tutte_terapie_paziente(codice_paziente)
+    oggi = date.today()
+
+    opzioni = []
+    for t in terapie:
+        farmaco = farmaco_controller.get_farmaco(t.codiceFarmaco)
+        nome_farmaco = farmaco.nome if farmaco else t.codiceFarmaco
+        stato = "attiva" if t.is_attiva(oggi) else "non attiva"
+        label = f"{nome_farmaco} — {t.dataInizio} → {t.dataFine} ({stato}, id {t.id})"
+        opzioni.append({"label": label, "value": t.id})
+
+    return opzioni
+
+
+@callback(
+    Output("med-mod-farmaco", "value"),
+    Output("med-mod-assunzioni", "value"),
+    Output("med-mod-qty", "value"),
+    Output("med-mod-ind", "value"),
+    Output("med-mod-fine", "date"),
+    Output("med-mod-info-inizio", "children"),
+    Input("med-mod-terapia-select", "value"),
+    prevent_initial_call=True,
+)
+def precompila_modifica_terapia(id_terapia):
+    """Precompila il form con i valori attuali della terapia scelta."""
+    if not id_terapia:
+        return None, None, None, None, None, ""
+
+    terapia = terapia_controller.get_terapia_by_id(id_terapia)
+    if terapia is None:
+        return None, None, None, None, None, ""
+
+    info_inizio = f"Data inizio: {terapia.dataInizio} (non modificabile)"
+    return (
+        terapia.codiceFarmaco,
+        terapia.assunzioneGiornaliera,
+        terapia.quantita,
+        terapia.indicazioni,
+        terapia.dataFine,
+        info_inizio,
+    )
+
+
+@callback(
+    Output("msg-modifica-terapia", "children"),
+    Output("msg-modifica-terapia", "className"),
+    Output("med-mod-terapia-select", "options", allow_duplicate=True),
+    Input("btn-salva-modifica-terapia", "n_clicks"),
+    State("med-mod-terapia-select", "value"),
+    State("med-mod-farmaco", "value"),
+    State("med-mod-assunzioni", "value"),
+    State("med-mod-qty", "value"),
+    State("med-mod-ind", "value"),
+    State("med-mod-fine", "date"),
+    State("med-paziente-select", "value"),
+    prevent_initial_call=True,
+)
+def salva_modifica_terapia(n_clicks, id_terapia, codice_farmaco, assunzioni,
+                            quantita, indicazioni, data_fine_str, codice_paziente):
+    if not id_terapia:
+        return "Seleziona una terapia da modificare.", "msg-box msg-errore", dash.no_update
+
+    if not all([codice_farmaco, assunzioni, quantita, indicazioni, data_fine_str]):
+        return "Compila tutti i campi.", "msg-box msg-errore", dash.no_update
+
+    try:
+        data_fine = date.fromisoformat(data_fine_str)
+    except ValueError:
+        return "Formato data non valido.", "msg-box msg-errore", dash.no_update
+
+    successo, esito = terapia_controller.correggi_terapia(
+        id_terapia=id_terapia,
+        codice_farmaco=codice_farmaco,
+        assunzione_giornaliera=int(assunzioni),
+        quantita=float(quantita),
+        indicazioni=indicazioni,
+        data_fine=data_fine,
+    )
+
+    classe = "msg-box msg-successo" if successo else "msg-box msg-errore"
+
+    # Aggiorna anche il dropdown (la label mostra le date/lo stato aggiornati)
+    nuove_opzioni = carica_terapie_paziente_per_modifica(codice_paziente) if successo else dash.no_update
+    return esito, classe, nuove_opzioni
 
 @callback(
     Output("med-notifiche-lista", "children"),
