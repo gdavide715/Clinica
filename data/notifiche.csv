@@ -1,1 +1,42 @@
 id,codiceUtente,tipo,messaggio,data,letta
+1,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-07-29,True
+2,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-16.,2026-07-24,True
+3,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-18,True
+4,U003,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-20,True
+5,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-07-25,True
+6,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-07-16,True
+7,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-08.,2026-07-19,True
+8,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-07-19,True
+9,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-20.,2026-08-01,True
+10,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-12.,2026-07-18,True
+11,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-05,True
+12,U003,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-08-21,True
+13,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-18.,2026-08-14,True
+14,U003,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-27,True
+15,U003,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-19,True
+16,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-07-18,True
+17,U003,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-14,True
+18,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-06.,2026-08-21,True
+19,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-07.,2026-07-28,True
+20,U003,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-21.,2026-08-03,True
+21,U004,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-20,False
+22,U004,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-18,False
+23,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-12.,2026-07-22,False
+24,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-08-20,True
+25,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-08-02,False
+26,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-29,True
+27,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-19.,2026-08-08,True
+28,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-14.,2026-07-17,True
+29,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-24,False
+30,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-08-25,False
+31,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-15.,2026-08-01,False
+32,U004,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-18,True
+33,U004,Terapia,Il medico ha aggiornato la tua terapia.,2026-07-19,False
+34,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-08-06,False
+35,U004,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-02,False
+36,U004,Terapia,Il medico ha aggiornato la tua terapia.,2026-08-06,False
+37,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-08.,2026-07-25,False
+38,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-20,False
+39,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-15.,2026-07-24,True
+40,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-23,True
+41,U001,Glicemia,Anomalia GRAVE: glicemia a 300.0 mg/dL (post_pasto) registrata il 2026-08-25 alle 15:20. Paziente: U003,2026-08-25,False

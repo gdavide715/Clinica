@@ -1,6 +1,6 @@
 id,codicePaziente,tipologia,descrizione
 1,U003,FattoreRischio,Ex-fumatrice
-3,U005,FattoreRischio,Obesita
-4,U004,PregressaPatologia,cecità
-5,U004,Comorbidita,non so cosa sia
-6,U004,FattoreRischio,gas instestinale
+2,U003,PregressaPatologia,Trombosi venosa nel 2015
+3,U003,Comorbidita,Ipertensione arteriosa
+4,U004,FattoreRischio,Stile di vita sedentario
+5,U004,Comorbidita,Ipercolesterolemia

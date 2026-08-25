@@ -1,4 +1,7 @@
 id,codicePaziente,codiceDiabetologo,codiceFarmaco,assunzioneGiornaliera,quantita,indicazioni,dataInizio,dataFine,ultimaModifica
-1,U003,U001,F001,2,500,dopo i pasti,2026-01-10,2026-12-31,2026-01-10
-2,U004,U001,F002,1,10,lontano dai pasti,2026-02-01,2026-12-31,2026-02-01
-3,U005,U002,F003,1,100,dopo colazione,2026-03-15,2026-12-31,2026-03-15
+1,U003,U001,F001,1,1000.0,dopo i pasti,2026-04-19,2027-12-31,2026-04-19
+2,U003,U001,F002,1,1000.0,prima di dormire,2026-02-09,2027-12-31,2026-02-09
+3,U004,U001,F003,1,20.0,lontano dai pasti,2026-05-23,2027-12-31,2026-05-23
+4,U004,U001,F002,3,500.0,dopo i pasti,2025-12-29,2027-12-31,2025-12-29
+5,U003,U001,F004,1,1.5,1 volta a settimana,2025-07-21,2026-05-17,2026-05-17
+6,U004,U001,F004,1,1.5,1 volta a settimana,2025-07-21,2026-05-17,2026-05-17

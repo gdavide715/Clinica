@@ -1,4 +1,31 @@
 id,codicePaziente,descrizione,dataInizio,dataFine,evento
-1,U003,Spossatezza nel pomeriggio,2026-08-01,2026-08-03,Sintomo
-2,U004,Ipertensione in terapia con ACE-inibitore,2026-01-01,2026-12-31,PatologiaConcomitante
-3,U003,Mal di testa,2026-08-09,2026-08-01,Sintomo
+1,U003,Infezione vie urinarie,2026-07-14,2026-07-19,PatologiaConcomitante
+2,U003,Gastroenterite lieve,2026-08-20,2026-08-24,PatologiaConcomitante
+3,U003,Antibiotico per 5 giorni,2026-07-31,2026-08-07,TerapiaConcomitante
+4,U003,Antinfiammatorio,2026-07-14,2026-07-20,TerapiaConcomitante
+5,U003,Lieve vertigine al risveglio,2026-08-01,2026-08-05,Sintomo
+6,U003,Infezione vie urinarie,2026-08-12,2026-08-15,PatologiaConcomitante
+7,U003,Lieve vertigine al risveglio,2026-08-16,2026-08-18,Sintomo
+8,U003,Cortisone per dolore articolare,2026-07-13,2026-07-18,TerapiaConcomitante
+9,U003,Spossatezza nel pomeriggio,2026-07-25,2026-07-29,Sintomo
+10,U003,Antinfiammatorio,2026-06-23,2026-06-29,TerapiaConcomitante
+11,U003,Spossatezza nel pomeriggio,2026-06-21,2026-06-24,Sintomo
+12,U003,Lieve vertigine al risveglio,2026-07-01,2026-07-04,Sintomo
+13,U003,Lieve vertigine al risveglio,2026-08-08,2026-08-14,Sintomo
+14,U003,Nausea post prandiale,2026-06-08,2026-06-14,Sintomo
+15,U003,Lieve vertigine al risveglio,2026-06-10,2026-06-13,Sintomo
+16,U004,Cortisone per dolore articolare,2026-07-06,2026-07-11,TerapiaConcomitante
+17,U004,Spossatezza nel pomeriggio,2026-06-09,2026-06-13,Sintomo
+18,U004,Nausea post prandiale,2026-07-12,2026-07-14,Sintomo
+19,U004,Cortisone per dolore articolare,2026-06-21,2026-06-23,TerapiaConcomitante
+20,U004,Influenza stagionale,2026-07-02,2026-07-09,PatologiaConcomitante
+21,U004,Antinfiammatorio,2026-08-07,2026-08-10,TerapiaConcomitante
+22,U004,Influenza stagionale,2026-07-06,2026-07-09,PatologiaConcomitante
+23,U004,Antibiotico per 5 giorni,2026-07-14,2026-07-19,TerapiaConcomitante
+24,U004,Antibiotico per 5 giorni,2026-07-26,2026-08-01,TerapiaConcomitante
+25,U004,Lieve vertigine al risveglio,2026-07-11,2026-07-14,Sintomo
+26,U004,Antibiotico per 5 giorni,2026-07-27,2026-07-30,TerapiaConcomitante
+27,U004,Nausea post prandiale,2026-08-13,2026-08-17,Sintomo
+28,U004,Cortisone per dolore articolare,2026-08-02,2026-08-06,TerapiaConcomitante
+29,U004,Lieve vertigine al risveglio,2026-07-10,2026-07-15,Sintomo
+30,U004,Cortisone per dolore articolare,2026-08-11,2026-08-14,TerapiaConcomitante
