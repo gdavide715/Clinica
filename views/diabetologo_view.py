@@ -433,8 +433,9 @@ def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
 @callback(
     Output("med-mod-terapia-select", "options"),
     Input("med-paziente-select", "value"),
+    Input("med-interval-dashboard", "n_intervals"),
 )
-def carica_terapie_paziente_per_modifica(codice_paziente):
+def carica_terapie_paziente_per_modifica(codice_paziente, n_intervals):
     """Elenco di TUTTE le terapie del paziente (attive e non), selezionabili per la modifica."""
     if not codice_paziente:
         return []
