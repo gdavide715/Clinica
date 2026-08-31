@@ -85,9 +85,6 @@ def paziente_layout(session_data):
 
         dcc.Tabs([
 
-            # ---------------------------
-            # DIARIO GLICEMICO
-            # ---------------------------
             dcc.Tab(label='Diario Glicemico', children=[
                 html.Div(className="tab-content", children=[
                     html.H4("Nuova Rilevazione"),
@@ -114,9 +111,6 @@ def paziente_layout(session_data):
                 ])
             ]),
 
-            # ---------------------------
-            # INFORMAZIONI PERSONALI
-            # ---------------------------
             dcc.Tab(label='Informazioni Personali', children=[
                 html.Div(className="tab-content", children=[
 
@@ -142,9 +136,6 @@ def paziente_layout(session_data):
                 ])
             ]),
 
-            # ---------------------------
-            # ASSUNZIONE TERAPIE
-            # ---------------------------
             dcc.Tab(label='Assunzione Terapie', children=[
                 html.Div(className="tab-content", children=[
                     html.H4("Registra Farmaco"),
@@ -175,9 +166,6 @@ def paziente_layout(session_data):
                 ])
             ]),
 
-            # ---------------------------
-            # SEGNALAZIONI
-            # ---------------------------
             dcc.Tab(label='Invia Segnalazione', children=[
                 html.Div(className="tab-content", children=[
                     html.H4("Nuova Segnalazione"),
@@ -199,9 +187,6 @@ def paziente_layout(session_data):
                 ])
             ]),
 
-            # ---------------------------
-            # Centro Notifiche Paziente
-            # ---------------------------
             dcc.Tab(label='Centro Notifiche', children=[
                 html.Div(className="tab-content", children=[
                     html.H4("Avvisi e Promemoria"),
@@ -215,9 +200,6 @@ def paziente_layout(session_data):
                 ])
             ]),
 
-            # ---------------------------
-            # CONTATTA IL MEDICO
-            # ---------------------------
             dcc.Tab(label='Contatta il Medico', children=[
                 html.Div(className="tab-content contatto-medico-box", children=[
                     html.H4("Hai bisogno di contattare il tuo Diabetologo?"),
@@ -363,7 +345,6 @@ def aggiorna_grafico_personale(Inizio, Fine, session_data):
 
     fig = go.Figure()
 
-    # Nessun dato
     if not storico:
         fig.update_layout(
             title="Nessun dato glicemico disponibile.",
@@ -372,10 +353,8 @@ def aggiorna_grafico_personale(Inizio, Fine, session_data):
         )
         return fig
 
-    # Ordina per data
     storico_ordinato = sorted(storico, key=lambda r: r.as_datetime())
 
-    # Filtro intervallo
     if Inizio and Fine:
         start_dt = datetime.strptime(Inizio, "%Y-%m-%d")
         end_dt = datetime.strptime(Fine, "%Y-%m-%d")
@@ -384,7 +363,6 @@ def aggiorna_grafico_personale(Inizio, Fine, session_data):
             if start_dt <= r.as_datetime() <= end_dt
         ]
 
-    # Se dopo il filtro non c'è nulla
     if not storico_ordinato:
         fig.update_layout(
             title="Nessun dato nel periodo selezionato.",
@@ -393,11 +371,9 @@ def aggiorna_grafico_personale(Inizio, Fine, session_data):
         )
         return fig
 
-    # Pre e post pasto
     pre = [r for r in storico_ordinato if r.momentoPasto == Pasto.PRE_PASTO]
     post = [r for r in storico_ordinato if r.momentoPasto == Pasto.POST_PASTO]
 
-    # Pre-pasto (blu)
     fig.add_trace(go.Scatter(
         x=[r.as_datetime() for r in pre],
         y=[r.livelloGlicemia for r in pre],
@@ -407,7 +383,6 @@ def aggiorna_grafico_personale(Inizio, Fine, session_data):
         line=dict(color='blue')
     ))
 
-    # Post-pasto (rosso)
     fig.add_trace(go.Scatter(
         x=[r.as_datetime() for r in post],
         y=[r.livelloGlicemia for r in post],
@@ -417,7 +392,6 @@ def aggiorna_grafico_personale(Inizio, Fine, session_data):
         line=dict(color='red')
     ))
 
-    # Layout finale
     fig.update_layout(
         title=f"Andamento glicemico personale ({codice_paz})",
         xaxis_title="Data e ora",
@@ -441,8 +415,6 @@ def carica_terapie_personali(session_data, _):
         return html.P("Nessuna terapia attiva al momento.", className="card-list-empty")
 
     lista = []
-
-    # Nome del diabetologo (se disponibile)
     nome_medico = contatto_controller.get_nome_medico(codice_paz) or "Medico di riferimento"
 
     for t in terapie:
@@ -472,19 +444,16 @@ def carica_terapie_personali(session_data, _):
     Input("paz-interval-notifiche", "n_intervals")
 )
 def carica_notifiche_paziente(session_data, n_clicks, n_intervals):
-    """Carica e gestisce gli alert destinati al paziente."""
     if not session_data or session_data.get("ruolo") != "paziente":
         return []
-        
+
     codice_paziente = session_data.get("codiceUtente")
-    
-    # 1. Se l'utente ha premuto il bottone, smarchiamo tutto come letto
+
     if ctx.triggered_id == "btn-leggi-notifiche-paz":
         notifiche_non_lette = notifica_controller.get_notifiche_utente(codice_paziente, solo_non_lette=True)
         for n in notifiche_non_lette:
             notifica_controller.segna_come_letta(n.id)
-            
-    # 2. Recuperiamo la lista (che sarà vuota se ha appena premuto il bottone)
+
     notifiche = notifica_controller.get_notifiche_utente(codice_paziente, solo_non_lette=True)
     
     if not notifiche:

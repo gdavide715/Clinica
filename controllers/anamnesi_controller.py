@@ -1,6 +1,4 @@
-"""
-Controller per la gestione dell'anamnesi clinica del paziente.
-"""
+"""Controller per l'anamnesi clinica del paziente (fattori di rischio, patologie, comorbidità)."""
 from config import CSV_PATHS
 from models.data_manager import DataManager
 from models.anamnesi_paziente import AnamnesiPaziente
@@ -23,7 +21,6 @@ class AnamnesiController:
         if df.empty or "codicePaziente" not in df.columns:
             return risultati
 
-        # Filtriamo le righe come fatto negli altri controller
         record_paz = df[df["codicePaziente"] == codice_paziente]
 
         for row in record_paz.to_dict("records"):
@@ -42,10 +39,9 @@ class AnamnesiController:
         if not codice_paziente:
             return False, "Codice paziente mancante."
 
-        # 1. Eliminiamo i vecchi record
+        # riscriviamo l'anamnesi da zero: cancella e ricrea
         self.dm_anamnesi.delete_row("codicePaziente", codice_paziente)
 
-        # 2. Funzione interna di supporto per salvare i singoli record
         def salva_voci(testo: str, tipologia: TipoCondizioneClinica):
             if not testo:
                 return
@@ -62,7 +58,6 @@ class AnamnesiController:
                 )
                 self.dm_anamnesi.append_row(anamnesi.to_row())
 
-        # 3. Creazione delle nuove righe
         salva_voci(patologie, TipoCondizioneClinica.PREGRESSA_PATOLOGIA)
         salva_voci(comorbidita, TipoCondizioneClinica.COMORBIDITA)
         salva_voci(fattori_rischio, TipoCondizioneClinica.FATTORE_RISCHIO)

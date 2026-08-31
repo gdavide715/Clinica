@@ -1,11 +1,4 @@
-"""
-Implementa il sequence diagram "Autenticazione.txt":
-
-Utente -> Sistema: login(username, pwd)
-alt utente non esistente -> errore
-alt paziente -> ritorna terapia
-alt diabetologo -> ritorna pazientiAssegnati
-"""
+"""Controller per il login. Restituisce l'utente autenticato (Paziente o Diabetologo)."""
 
 from config import CSV_PATHS
 from models.data_manager import DataManager
@@ -21,9 +14,7 @@ class AuthController:
         self.dm_diabetologi = DataManager(CSV_PATHS["diabetologi"])
 
     def login(self, username: str, password: str):
-        
-        # Restituisce (successo: bool, ruolo: str|None, oggetto_utente|messaggio_errore)
-        
+        # Restituisce (successo, ruolo, oggetto_utente | messaggio_errore)
         df_utenti = self.dm_utenti.read_all()
         match = df_utenti[
             (df_utenti["username"] == username) & (df_utenti["password"] == password)

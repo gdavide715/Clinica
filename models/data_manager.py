@@ -1,15 +1,12 @@
-# DataManager: layer di accesso ai dati (il nostro "database" su CSV).
-
+# Gestisce lettura/scrittura dei CSV, con lock per evitare scritture concorrenti
 
 import os
 import datetime as _dt
 import pandas as pd
-from filelock import FileLock  # è un lucchetto per non permettere di 
-# leggere/modificare lo stesso file csv in cotemporanea e avere problemi di lettura inconsistente, lettura sporca, aggiornamento fantasma....
-# df.to_csv riscrive l'intero file csv --> serve un semaforo
+from filelock import FileLock
+
 
 class DataManager:
-    # Gestisce lettura/scrittura di una singola 'tabella' CSV."""
 
     def __init__(self, csv_path: str):
         self.csv_path = csv_path
@@ -21,27 +18,16 @@ class DataManager:
             )
 
     def read_all(self) -> pd.DataFrame:
-        # Restituisce l'intero contenuto della tabella come DataFrame.
-        
-        # un richiesta fatta dentro il blocco with FileLock(...) blocca
-        # qualsiasi altra richiesta che prova ad acquisire lo stesso lock facendola restare in attesa
-        # FileLock crea un file .lock accanto al file .csv che funge da semaforo e si salva il file fino al quel momento
-        
         with FileLock(self.lock_path):
             return pd.read_csv(self.csv_path)
 
     def append_row(self, row: dict) -> None:
-        # Aggiunge una riga in coda al CSV.
         with FileLock(self.lock_path):
             df = pd.read_csv(self.csv_path)
             df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
             df.to_csv(self.csv_path, index=False)
 
     def update_row(self, key_col: str, key_value, updates: dict) -> bool:
-        
-        # Aggiorna la prima riga con key_col == key_value applicando updates.
-        # Restituisce True se una riga è stata trovata e aggiornata.
-        
         with FileLock(self.lock_path):
             df = pd.read_csv(self.csv_path)
             mask = df[key_col] == key_value
@@ -65,7 +51,6 @@ class DataManager:
             return True
 
     def get_next_id(self, id_col: str = "id") -> int:
-        # per generare id incrementali
         df = self.read_all()
         if df.empty or id_col not in df.columns:
             return 1

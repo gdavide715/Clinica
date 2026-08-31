@@ -1,7 +1,4 @@
-"""
-Implementa il sequence diagram "RilevazioneRegistrazioneGlicemia.txt"
-con l'aggiunta delle notifiche persistenti e della gravità differenziata.
-"""
+"""Controller per le rilevazioni glicemiche."""
 from datetime import date, time
 
 from config import (
@@ -49,7 +46,6 @@ class GlicemiaController:
             momentoPasto=momento_pasto,
         )
         
-        # Salvataggio fisico nel file rilevazioni_glicemiche.csv
         self.dm_rilevazioni.append_row(rilevazione.to_row())
 
         fuori_soglia = rilevazione.fuori_soglia(
@@ -61,7 +57,7 @@ class GlicemiaController:
         esito = "nella norma"
 
         if fuori_soglia:
-            # 1. Calcolo matematico dello scarto dai limiti consentiti
+            # scarto dai limiti, usato per la gravità
             delta = 0
             if momento_pasto == Pasto.PRE_PASTO:
                 if livello_glicemia < GLICEMIA_PRE_PASTO_MIN:
@@ -71,8 +67,7 @@ class GlicemiaController:
             else:
                 if livello_glicemia > GLICEMIA_POST_PASTO_MAX:
                     delta = livello_glicemia - GLICEMIA_POST_PASTO_MAX
-            
-            # 2. Assegnazione gravità differenziata in base allo scarto
+
             if delta <= 20:
                 gravita = "Lieve"
             elif delta <= 50:
@@ -82,7 +77,7 @@ class GlicemiaController:
                 
             esito = f"fuori soglia ({gravita})"
 
-            # 3. Identificazione del medico e salvataggio della notifica persistente
+            # notifica al medico di riferimento
             df_pazienti = self.dm_pazienti.read_all()
             row = df_pazienti[df_pazienti["codiceUtente"] == codice_paziente]
             
@@ -90,12 +85,10 @@ class GlicemiaController:
                 codice_medico = row.iloc[0]["codiceMedicoRiferimento"]
                 alert_inviato = True 
                 
-                # Costruiamo il testo che il medico leggerà nella sua Tab
                 msg = (f"Anomalia {gravita.upper()}: glicemia a {livello_glicemia} mg/dL "
                        f"({momento_pasto.value}) registrata il {data_ril} alle {ora.strftime('%H:%M')}. "
                        f"Paziente: {codice_paziente}")
                 
-                # Scrittura su notifiche.csv per renderla leggibile al prossimo login
                 self.notifica_controller.crea_notifica(
                     codice_utente=codice_medico,
                     tipo=TipoNotifica.GLICEMIA,

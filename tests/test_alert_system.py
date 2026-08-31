@@ -29,19 +29,21 @@ class TestAlertSystem(unittest.TestCase):
         CSV_PATHS["pazienti"] = self.test_pazienti_csv
         CSV_PATHS["notifiche"] = self.test_notifiche_csv
 
-        # 1. Terapie: Paziente U001 ha una terapia attiva continuativa
+        # 1. Terapie: U001 e U002 hanno entrambi una terapia attiva continuativa, stesso medico
         with open(self.test_terapie_csv, "w") as f:
             f.write("id,codicePaziente,codiceDiabetologo,codiceFarmaco,assunzioneGiornaliera,quantita,indicazioni,dataInizio,dataFine,ultimaModifica\n")
             f.write("1,U001,M001,F001,1,10.0,Test,2026-01-01,2027-12-31,2026-01-01\n")
+            f.write("2,U002,M001,F001,1,10.0,Test,2026-01-01,2027-12-31,2026-01-01\n")
 
         # 2. Assunzioni: Inizialmente vuoto (nessun farmaco assunto)
         with open(self.test_assunzioni_csv, "w") as f:
             f.write("id,codicePaziente,idTerapia,data,ora,quantita\n")
 
-        # 3. Pazienti: U001 associato a M001
+        # 3. Pazienti: U001 e U002 associati allo stesso medico M001
         with open(self.test_pazienti_csv, "w") as f:
             f.write("codiceUtente,codiceMedicoRiferimento\n")
             f.write("U001,M001\n")
+            f.write("U002,M001\n")
 
         # 4. Notifiche: Vuoto
         with open(self.test_notifiche_csv, "w") as f:

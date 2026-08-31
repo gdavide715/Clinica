@@ -1,17 +1,8 @@
 """
-Implementa il sequence diagram "AggiornaTerapia.txt":
-
-alt terapia esistente -> aggiornaTerapia(...)
-else -> creazioneTerapia(...)
-
-Le due azioni sono volutamente distinte e non si sovrappongono mai in
-modo automatico:
-- crea_terapia() crea sempre una NUOVA riga (nuova prescrizione).
-- correggi_terapia() modifica SEMPRE la riga esistente in place (mai una
-  cancellazione), e puo' cambiare qualsiasi campo tranne dataInizio, che
-  resta immutabile una volta fissato. Per interrompere una terapia il
-  medico usa correggi_terapia() impostando dataFine a oggi; per iniziare
-  una nuova terapia usa crea_terapia() con una nuova riga.
+Controller per le terapie. Due azioni separate, mai automatiche tra loro:
+- crea_terapia(): nuova prescrizione, nuova riga.
+- correggi_terapia(): modifica una riga esistente (mai dataInizio), notifica
+  il paziente. Per interrompere una terapia si imposta dataFine a oggi.
 """
 
 from datetime import date
@@ -61,15 +52,7 @@ class TerapiaController:
     def correggi_terapia(self, id_terapia: int, codice_farmaco: str,
                           assunzione_giornaliera: int, quantita: float,
                           indicazioni: str, data_fine: date) -> tuple[bool, str]:
-        """
-        Corrisponde a Terapia --> Diabetologo: esitoModifica(messaggio).
-
-        Modifica la riga esistente (mai una cancellazione): puo' cambiare
-        farmaco, posologia, indicazioni e data di fine, ma NON la data di
-        inizio, che resta fissa per l'intera vita della riga. Per
-        interrompere la terapia il medico imposta data_fine a oggi.
-        Notifica il paziente della modifica.
-        """
+        """Modifica la riga esistente (mai dataInizio) e notifica il paziente."""
         terapia_esistente = self.get_terapia_by_id(id_terapia)
         if terapia_esistente is None:
             return False, f"Terapia {id_terapia} non trovata."
@@ -115,12 +98,7 @@ class TerapiaController:
         return df[df["codicePaziente"] == codice_paziente]
 
     def get_terapie_attive_paziente(self, codice_paziente: str, oggi: date = None) -> list[TerapiaDiabetica]:
-        """
-        Restituisce solo le terapie ancora attive del paziente, come oggetti
-        TerapiaDiabetica (non righe pandas). Usa il metodo di dominio
-        is_attiva() gia' definito nel model, invece di confrontare le date
-        manualmente ad ogni chiamata.
-        """
+        """Solo le terapie ancora attive alla data indicata."""
         oggi = oggi or date.today()
         df = self._df_terapie_paziente(codice_paziente)
 

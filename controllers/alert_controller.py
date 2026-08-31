@@ -1,8 +1,4 @@
-"""
-Implementa il sequence diagram "AlertDimenticanze.txt"
-con salvataggio su database delle notifiche persistenti, blocco duplicati giornalieri
-e verifica di fine giornata (ore 22:00).
-"""
+"""Controller per gli alert di aderenza terapeutica (mancata assunzione farmaci)."""
 from datetime import date, timedelta, datetime, time
 
 from config import CSV_PATHS, GIORNI_CONSECUTIVI_ALERT_MEDICO
@@ -20,12 +16,15 @@ class AlertController:
         self.dm_pazienti = DataManager(CSV_PATHS["pazienti"])
         self.notifica_controller = NotificaController()
         
-    def _notifica_gia_inviata_oggi(self, codice_utente: str, tipo: TipoNotifica, data_riferimento: date) -> bool:
-        """Verifica se una notifica dello stesso tipo è già stata creata per quella specifica data."""
+    def _notifica_gia_inviata_oggi(self, codice_utente: str, tipo: TipoNotifica, data_riferimento: date, codice_paziente: str = None) -> bool:
+        # evita di duplicare la stessa notifica per la stessa data.
+        # per il medico serve anche codice_paziente: puo' ricevere alert
+        # su piu' pazienti diversi nello stesso giorno, non sono duplicati tra loro
         notifiche_storico = self.notifica_controller.get_notifiche_utente(codice_utente, solo_non_lette=False)
         for n in notifiche_storico:
             if n.tipo == tipo and n.data == data_riferimento:
-                return True
+                if codice_paziente is None or codice_paziente in n.messaggio:
+                    return True
         return False
 
     def verifica_assunzioni(self, codice_paziente: str, data_richiesta: date):
@@ -87,8 +86,7 @@ class AlertController:
                     risultato["notifica_diabetologo"] = True
                     risultato["codice_medico"] = codice_medico
                     
-                    # Controllo anti-spam per il medico
-                    if not self._notifica_gia_inviata_oggi(codice_medico, TipoNotifica.FARMACO, data_da_verificare):
+                    if not self._notifica_gia_inviata_oggi(codice_medico, TipoNotifica.FARMACO, data_da_verificare, codice_paziente=codice_paziente):
                         msg_med = (f"Allarme aderenza: il paziente {codice_paziente} non registra "
                                    f"assunzioni di farmaci da {GIORNI_CONSECUTIVI_ALERT_MEDICO} giorni consecutivi "
                                    f"(fino al {data_da_verificare}).")

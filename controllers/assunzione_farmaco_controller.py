@@ -1,12 +1,9 @@
 """
-Gestisce la registrazione delle assunzioni di farmaco da parte del paziente
-(model AssunzioneFarmaco) e la verifica di coerenza con la terapia
-prescritta (richiesta esplicita della specifica: "Il sistema deve
-verificare che le assunzioni di farmaci da parte dei pazienti siano
-coerenti con le terapie prescritte").
+Registrazione assunzioni farmaco (model AssunzioneFarmaco) e verifica di
+coerenza con la terapia prescritta.
 
-NOTA: non va confuso con FarmacoController, che gestisce invece il
-catalogo dei farmaci (model Farmaco).
+Da non confondere con FarmacoController: quello gestisce il catalogo
+farmaci, questo le assunzioni.
 """
 
 from datetime import date, time

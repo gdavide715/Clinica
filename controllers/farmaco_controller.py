@@ -1,11 +1,4 @@
-"""
-Gestisce il catalogo dei farmaci (data/farmaci.csv).
-
-NOTA: non va confuso con AssunzioneFarmacoController, che gestisce invece
-le assunzioni giornaliere registrate dal paziente (model AssunzioneFarmaco).
-Questo controller si occupa del model Farmaco, cioe' dell'anagrafica dei
-farmaci prescrivibili.
-"""
+"""Catalogo farmaci (data/farmaci.csv). Non confondere con AssunzioneFarmacoController."""
 
 from config import CSV_PATHS
 from models.data_manager import DataManager

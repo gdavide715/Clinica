@@ -237,7 +237,7 @@ def aggiorna_dashboard_paziente(codice_paziente, Inizio, Fine, n_intervals):
         pre_pasto = [r for r in storico_filtrato if r.momentoPasto == Pasto.PRE_PASTO]
         post_pasto = [r for r in storico_filtrato if r.momentoPasto == Pasto.POST_PASTO]
 
-        # Range glicemico consigliato (esempio clinico)
+        # range glicemico consigliato, solo indicativo
         range_min = 70
         range_max = 180
 
@@ -251,7 +251,6 @@ def aggiorna_dashboard_paziente(codice_paziente, Inizio, Fine, n_intervals):
             layer="below"
         )
 
-        # Punti fuori range evidenziati
         def colore_punto(valore):
             return "red" if valore > range_max or valore < range_min else "blue"
 
@@ -273,7 +272,6 @@ def aggiorna_dashboard_paziente(codice_paziente, Inizio, Fine, n_intervals):
             line=dict(color='red')
         ))
 
-        # Linea di trend (media mobile)
         if len(storico_filtrato) >= 3:
             valori = [r.livelloGlicemia for r in storico_filtrato]
             date_x = [r.as_datetime() for r in storico_filtrato]
@@ -415,10 +413,8 @@ def salva_terapia(n_clicks, codice_paziente, codice_farmaco,
 
     codice_medico = session_data.get("codiceUtente")
 
-    # crea_terapia crea sempre una NUOVA riga: non tocca mai le terapie
-    # esistenti, anche se farmaco e date coincidono con una gia' presente.
-    # Per modificare/interrompere una terapia esistente si usa l'apposito
-    # tab "Modifica terapie esistenti" (correggi_terapia).
+    # crea_terapia crea sempre una nuova riga, non tocca le esistenti.
+    # per modificare/interrompere una terapia c'e' il tab "Modifica terapie esistenti"
     successo, esito = terapia_controller.crea_terapia(
         codice_paziente=codice_paziente,
         codice_diabetologo=codice_medico,
@@ -525,7 +521,7 @@ def salva_modifica_terapia(n_clicks, id_terapia, codice_farmaco, assunzioni,
 
     classe = "msg-box msg-successo" if successo else "msg-box msg-errore"
 
-    # Aggiorna anche il dropdown (la label mostra le date/lo stato aggiornati)
+    # riaggiorna il dropdown con le date/lo stato aggiornati
     nuove_opzioni = carica_terapie_paziente_per_modifica(codice_paziente) if successo else dash.no_update
     return esito, classe, nuove_opzioni
 
@@ -541,14 +537,12 @@ def gestisci_notifiche(codice_paziente, n_clicks, n_intervals, session_data):
         return []
         
     codice_medico = session_data.get("codiceUtente")
-    
-    # 1. Se l'azione è stata scatenata dal click sul bottone, segniamo tutto come letto
+
     if ctx.triggered_id == "btn-leggi-notifiche":
         notifiche_non_lette = notifica_controller.get_notifiche_utente(codice_medico, solo_non_lette=True)
         for n in notifiche_non_lette:
             notifica_controller.segna_come_letta(n.id)
-            
-    # 2. Recuperiamo la lista aggiornata dal database
+
     notifiche = notifica_controller.get_notifiche_utente(codice_medico, solo_non_lette=True)
     
     if not notifiche:
@@ -556,7 +550,6 @@ def gestisci_notifiche(codice_paziente, n_clicks, n_intervals, session_data):
         
     lista_html = []
     for notifica in notifiche:
-        # Aggiungiamo la classe msg-alert per dare lo sfondo arancione tipico degli avvisi
         card = html.Div(className="card-list-item msg-alert", children=[
             html.Strong(f"Tipo: {notifica.tipo.value}"),
             html.Span(f"Data: {notifica.data}", className="card-list-meta"),

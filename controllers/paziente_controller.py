@@ -1,12 +1,4 @@
-"""
-Gestisce le query relative all'elenco dei pazienti assegnati a un
-diabetologo.
-
-Corrisponde concettualmente al ramo 'diabetologo' del sequence diagram
-Autenticazione.txt (Sistema --> utente: pazientiAssegnati), esteso con i
-dati anagrafici necessari per mostrare l'elenco nella dashboard del
-medico (nome/cognome, che vivono in utenti.csv e non in pazienti.csv).
-"""
+"""Elenco pazienti assegnati a un diabetologo (unisce utenti.csv e pazienti.csv)."""
 
 from config import CSV_PATHS
 from models.data_manager import DataManager
@@ -20,12 +12,6 @@ class PazienteController:
         self.dm_utenti = DataManager(CSV_PATHS["utenti"])
 
     def get_pazienti_assegnati(self, codice_medico: str) -> list[Paziente]:
-        """
-        Restituisce l'elenco dei pazienti assegnati al medico, come oggetti
-        Paziente (non dict). Usa lo stesso Paziente.from_row() gia' usato
-        da AuthController al login, che unisce i dati anagrafici di
-        utenti.csv con l'associazione medico-paziente di pazienti.csv.
-        """
         df_pazienti = self.dm_pazienti.read_all()
         df_utenti = self.dm_utenti.read_all()
 
