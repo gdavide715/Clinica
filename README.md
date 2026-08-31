@@ -2,19 +2,6 @@
 
 Applicazione web (Dash + Plotly) con persistenza su CSV, architettura MVC.
 
-## Avvio
-
-```bash
-pip install -r requirements.txt
-python app.py
-```
-
-Poi apri `http://127.0.0.1:8050`.
-
-Utenti demo (`data/utenti.csv`):
-- Paziente: `averdi` / `averdipwd`
-- Diabetologo: `mrossi` / `mrossipwd`
-
 ## Struttura
 
 ```
@@ -38,8 +25,3 @@ tests/        -> Test automatici (unittest)
 - Contatto diretto col medico via Gmail (l'email del paziente non viene
   gestita internamente all'app)
 
-## Test
-
-```bash
-python -m pytest tests/
-```

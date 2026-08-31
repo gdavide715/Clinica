@@ -17,8 +17,12 @@ plotly
     Una volta avviato il server locale aprire il browser all'indirizzo: 
     http://127.0.0.1:8050/ 
 
+    Utenti demo (`data/utenti.csv`):
+    - Paziente: `averdi` / `averdipwd`
+    - Diabetologo: `mrossi` / `mrossipwd`
+
 4.Test 
 
-    python –m unittest discovers -s test 
+    python -m unittest discover -s tests
 
 """
