@@ -2,3 +2,23 @@ dash==2.17.1
 pandas
 filelock==3.15.4
 plotly
+
+"""
+1.Installazione delle dipendenze 
+
+    pip install -r requirements.txt 
+    
+2.Avvio dell’applicazione 
+
+    python app.py 
+
+3.Accesso all'interfaccia 
+
+    Una volta avviato il server locale aprire il browser all'indirizzo: 
+    http://127.0.0.1:8050/ 
+
+4.Test 
+
+    python –m unittest discovers -s test 
+
+"""
