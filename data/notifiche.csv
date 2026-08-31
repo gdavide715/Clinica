@@ -40,3 +40,7 @@ id,codiceUtente,tipo,messaggio,data,letta
 39,U004,Glicemia,Attenzione: hai registrato un valore anomalo di glicemia in data 2026-08-15.,2026-07-24,True
 40,U004,Farmaco,Ricorda di compilare l'assunzione del farmaco mancante.,2026-07-23,True
 41,U001,Glicemia,Anomalia GRAVE: glicemia a 300.0 mg/dL (post_pasto) registrata il 2026-08-25 alle 15:20. Paziente: U003,2026-08-25,False
+42,U003,Farmaco,Attenzione: non risultano registrate tutte le assunzioni di farmaci previste per la giornata del 2026-08-30.,2026-08-30,False
+43,U001,Farmaco,Allarme aderenza: il paziente U003 non registra assunzioni di farmaci da 3 giorni consecutivi (fino al 2026-08-30).,2026-08-30,False
+44,U004,Farmaco,Attenzione: non risultano registrate tutte le assunzioni di farmaci previste per la giornata del 2026-08-30.,2026-08-30,False
+45,U001,Farmaco,Allarme aderenza: il paziente U004 non registra assunzioni di farmaci da 3 giorni consecutivi (fino al 2026-08-30).,2026-08-30,False
